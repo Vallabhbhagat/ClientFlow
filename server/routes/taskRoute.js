@@ -4,9 +4,31 @@ const Task = require("../models/Task.js");
 const project = require("../models/Project.js");
 const teamMember = require("../models/TeamMember.js");
 
+router.get("/with-tasks", async (req, res) => {
+    try {
+        const members = await teamMember.aggregate([
+            {
+                $lookup: {
+                    from: "tasks",              
+                    localField: "_id",         
+                    foreignField: "assignedTo", 
+                    as: "tasks"
+                }
+            }
+        ]);
+
+        return res.status(200).json({
+            count: members.length,
+            data: members
+        });
+    } catch (error) {
+        return res.status(500).json({ error: error.message });
+    }
+});
+
 router.post("/add", async (req, res) => {
     try {
-        const { title, projectName, memberName } = req.body;
+        const { title, projectName, memberName ,status } = req.body;
 
         const projectDetail = await project.findOne({ name: projectName });
         const member = await teamMember.findOne({ name: memberName });
@@ -17,10 +39,32 @@ router.post("/add", async (req, res) => {
         const task = await Task.create({
             title,
             projectId: projectDetail._id,
-            assignedTo: member._id
+            assignedTo: member._id,
+            status
         });
 
         res.status(201).json(task);
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+});
+
+router.put("/:id", async (req, res) => {
+    try {
+        const task = await Task.findByIdAndUpdate(
+            req.params.id,
+            {
+                status: req.body.status
+            },
+            {
+                new: true,
+                runValidators: true
+            }
+        );
+
+        if (!task) return res.status(404).json({ message: 'Not found' });
+
+        return res.status(200).json(task);
     } catch (error) {
         res.status(500).json({ error: error.message });
     }
