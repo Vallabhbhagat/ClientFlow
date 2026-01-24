@@ -1,15 +1,16 @@
 const express = require("express");
 const router = express.Router();
 const Client = require("../models/Client.js")
+const { authMiddleware, isAdmin } = require("../middleware/authMiddleware.js")
 
-router.get("/", async (req, res) => {
+router.get("/", authMiddleware, isAdmin, async (req, res) => {
     try {
         const clients = await Client.aggregate([
             {
                 $lookup: {
-                    from: "projects",          
-                    localField: "_id",         
-                    foreignField: "clientId",  
+                    from: "projects",
+                    localField: "_id",
+                    foreignField: "clientId",
                     as: "projects"
                 }
             }
@@ -25,7 +26,7 @@ router.get("/", async (req, res) => {
 });
 
 
-router.get("/search", async (req, res) => {
+router.get("/search", authMiddleware, isAdmin, async (req, res) => {
     try {
         const name = req.query.name?.trim();
 
@@ -48,7 +49,7 @@ router.get("/search", async (req, res) => {
     }
 });
 
-router.post("/add", async (req, res) => {
+router.post("/add", authMiddleware, isAdmin, async (req, res) => {
     try {
         const { name, email } = req.body;
 
@@ -75,7 +76,7 @@ router.post("/add", async (req, res) => {
 
 });
 
-router.put("/:id", async (req, res) => {
+router.put("/:id", authMiddleware, isAdmin, async (req, res) => {
     try {
         const client = await Client.findByIdAndUpdate(
             req.params.id,
@@ -97,7 +98,7 @@ router.put("/:id", async (req, res) => {
     }
 });
 
-router.delete("/:id", async (req, res) => {
+router.delete("/:id", authMiddleware, isAdmin, async (req, res) => {
     try {
         const client = await Client.findByIdAndDelete(req.params.id);
 

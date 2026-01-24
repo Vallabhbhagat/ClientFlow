@@ -3,15 +3,16 @@ const router = express.Router();
 const Task = require("../models/Task.js");
 const project = require("../models/Project.js");
 const teamMember = require("../models/TeamMember.js");
+const { authMiddleware, isAdmin } = require("../middleware/authMiddleware.js");
 
-router.get("/with-tasks", async (req, res) => {
+router.get("/with-tasks", authMiddleware, isAdmin, async (req, res) => {
     try {
         const members = await teamMember.aggregate([
             {
                 $lookup: {
-                    from: "tasks",              
-                    localField: "_id",         
-                    foreignField: "assignedTo", 
+                    from: "tasks",
+                    localField: "_id",
+                    foreignField: "assignedTo",
                     as: "tasks"
                 }
             }
@@ -26,9 +27,9 @@ router.get("/with-tasks", async (req, res) => {
     }
 });
 
-router.post("/add", async (req, res) => {
+router.post("/add", authMiddleware, isAdmin, async (req, res) => {
     try {
-        const { title, projectName, memberName ,status } = req.body;
+        const { title, projectName, memberName, status } = req.body;
 
         const projectDetail = await project.findOne({ name: projectName });
         const member = await teamMember.findOne({ name: memberName });
@@ -49,7 +50,7 @@ router.post("/add", async (req, res) => {
     }
 });
 
-router.put("/:id", async (req, res) => {
+router.put("/:id", authMiddleware, isAdmin, async (req, res) => {
     try {
         const task = await Task.findByIdAndUpdate(
             req.params.id,

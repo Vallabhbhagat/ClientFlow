@@ -2,8 +2,9 @@ const express = require("express");
 const router = express.Router();
 const TeamMember = require("../models/TeamMember.js");
 const Task = require("../models/Task.js");
+const { authMiddleware, isAdmin } = require("../middleware/authMiddleware.js");
 
-router.get("/", async (req, res) => {
+router.get("/", authMiddleware, isAdmin, async (req, res) => {
     try {
         const teamMember = await TeamMember.find();
 
@@ -16,7 +17,7 @@ router.get("/", async (req, res) => {
     }
 });
 
-router.post("/add", async (req, res) => {
+router.post("/add", authMiddleware, isAdmin, async (req, res) => {
     try {
         const { name, role } = req.body;
         if (!name && !role) {
@@ -34,7 +35,7 @@ router.post("/add", async (req, res) => {
     }
 });
 
-router.delete("/:id", async (req, res) => {
+router.delete("/:id", authMiddleware, isAdmin, async (req, res) => {
     try {
         const memberId = req.params.id;
 

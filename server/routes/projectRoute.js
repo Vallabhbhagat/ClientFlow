@@ -2,8 +2,9 @@ const express = require("express");
 const router = express.Router();
 const Project = require("../models/Project.js");
 const Client = require("../models/Client.js")
+const { authMiddleware, isAdmin } = require("../middleware/authMiddleware.js")
 
-router.post("/add", async (req, res) => {
+router.post("/add", authMiddleware, isAdmin, async (req, res) => {
     try {
         const { clientEmail, name, status } = req.body;
 
@@ -35,7 +36,7 @@ router.post("/add", async (req, res) => {
     }
 });
 
-router.put("/:id", async (req, res) => {
+router.put("/:id", authMiddleware, isAdmin, async (req, res) => {
     try {
         const project = await Project.findByIdAndUpdate(
             req.params.id,
