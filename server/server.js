@@ -8,6 +8,7 @@ const teamRoute = require("./routes/teamRoute.js");
 const taskRoute = require("./routes/taskRoute.js");
 const authRoute = require("./routes/auth.js");
 const memberTaskRoute = require("./routes/memberTaskRoute.js");
+const cookieparser = require("cookie-parser");
 
 dotenv.config()
 ConnectDB()
@@ -16,7 +17,11 @@ const app = express();
 const PORT = process.env.PORT || 3000;
 
 app.use(express.json());
-app.use(cors());
+app.use(cors({
+    origin: "http://localhost:5173",
+    credentials: true
+}));
+app.use(cookieparser());
 
 app.use("/api/client", clientRoute);
 app.use("/api/project", projectRoute);

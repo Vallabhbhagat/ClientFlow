@@ -1,6 +1,8 @@
 import React, { useState } from 'react'
+import { useNavigate } from 'react-router-dom';
 
 const AdminDashboard = () => {
+    const navigate = useNavigate();
 
     const [name, setName] = useState("");
     const [email, setEmail] = useState("");
@@ -14,10 +16,28 @@ const AdminDashboard = () => {
         setEmail("");
     }
 
+    const handleLogout = async () => {
+        try {
+            const res = await fetch("http://localhost:5000/api/auth/logout", {
+                method: "POST",
+                credentials: "include",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+            });
+
+            navigate("/");
+        } catch (error) {
+            console.log(error)
+        }
+
+    }
+
     return (
         <div>
             <nav>
                 <input type="text" value={search} onChange={(e) => { setSearch(e.target.value) }} placeholder='search here...' />
+                <button onClick={handleLogout}>Logout</button>
             </nav>
             <h1>Enter Client Detail</h1>
             <form >

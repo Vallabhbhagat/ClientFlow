@@ -41,10 +41,22 @@ const login = async (req, res) => {
         { expiresIn: "1d" }
     );
 
+    res.cookie("token", token, {
+        httpOnly: true,
+        secure: true,
+        sameSite: "none",
+        maxAge: 24 * 60 * 60 * 1000
+    });
+
     res.json({
-        token,
+        message: "Login success",
         role: user.role
     });
 };
 
-module.exports = { register, login };
+const logout = (req, res) => {
+    res.clearCookie("token");
+    res.json({ message: "Logged out" });
+}
+
+module.exports = { register, login, logout };
