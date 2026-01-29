@@ -1,34 +1,27 @@
 const jwt = require("jsonwebtoken");
-const User = require("../models/User");
 
-const authMiddleware = (req, res, next) => {
-    const token = req.cookies.token;
+// Admin
+const adminAuth = (req, res, next) => {
+  const token = req.cookies.admin_token;
+  if (!token) return res.sendStatus(401);
 
-    if (!token) {
-        return res.status(401).json({ message: "Not logged in" });
-    }
-
-    try {
-        const decoded = jwt.verify(token, process.env.JWT_SECRET);
-        req.user = decoded;
-        next();
-    } catch (err) {
-        return res.status(401).json({ message: "Invalid token" });
-    }
-};
-
-const isAdmin = (req, res, next) => {
-    if (req.user.role !== "admin") {
-        return res.status(403).json({ message: "Access denied" });
-    }
+  jwt.verify(token, process.env.JWT_SECRET, (err, decoded) => {
+    if (err || decoded.role !== "admin") return res.sendStatus(403);
+    req.user = decoded;
     next();
+  });
 };
 
-const isMember = (req, res, next) => {
-    if (req.user.role !== "teamMember") {
-        return res.status(403).json({ message: "Members only" });
-    }
+// Member
+const memberAuth = (req, res, next) => {
+  const token = req.cookies.member_token;
+  if (!token) return res.sendStatus(401);
+
+  jwt.verify(token, process.env.JWT_SECRET, (err, decoded) => {
+    if (err || decoded.role !== "teamMember") return res.sendStatus(403);
+    req.user = decoded;
     next();
+  });
 };
 
-module.exports = { authMiddleware, isAdmin, isMember };
+module.exports = { adminAuth, memberAuth };

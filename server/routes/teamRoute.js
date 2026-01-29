@@ -1,13 +1,13 @@
 const express = require("express");
 const router = express.Router();
-const { authMiddleware, isAdmin } = require("../middleware/authMiddleware.js");
+const { adminAuth } = require("../middleware/authMiddleware.js");
 const { getMember, addMember, deleteMember } = require("../controllers/teamController.js");
 
-router.get("/", authMiddleware, isAdmin, getMember);
+router.get("/", adminAuth, getMember);
 
-router.post("/add", authMiddleware, isAdmin, addMember);
+router.post("/add", adminAuth, addMember);
 
-router.delete("/:id", authMiddleware, isAdmin, deleteMember);
+router.delete("/:id", adminAuth, deleteMember);
 
 
 module.exports = router;

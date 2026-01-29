@@ -53,11 +53,11 @@ const Register = () => {
             <form onSubmit={handleRegister}>
                 <div>
                     <label>Name</label>
-                    <input value={name} onChange={(e) => setName(e.target.value)} type="text" placeholder="your name" />
+                    <input value={name.toLowerCase().trim()} onChange={(e) => setName(e.target.value)} type="text" placeholder="your name" />
                 </div>
                 <div>
                     <label>Email</label>
-                    <input value={email} onChange={(e) => setEmail(e.target.value)} type="email" placeholder="you@example.com" />
+                    <input value={email.toLowerCase().trim()} onChange={(e) => setEmail(e.target.value)} type="email" placeholder="you@example.com" />
                 </div>
 
                 <div>
@@ -70,7 +70,7 @@ const Register = () => {
                 </select>
 
                 <div>
-                    <button type="submit">Login</button>
+                    <button type="submit">Register</button>
                     <br />
                     <small>Already have account? <Link to="/">Login</Link></small>
                 </div>

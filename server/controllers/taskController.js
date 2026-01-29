@@ -17,7 +17,7 @@ const getTask = async (req, res) => {
 
 const getMemberTask = async (req, res) => {
     try {
-        const members = await teamMember.aggregate([
+        const members = await Task.aggregate([
             {
                 $lookup: {
                     from: "tasks",
@@ -39,24 +39,27 @@ const getMemberTask = async (req, res) => {
 
 const addTask = async (req, res) => {
     try {
-        const { title, projectName, memberName, status } = req.body;
+        const { taskTitle, taskProjectName, taskMemberName, taskStatus } = req.body;
 
-        const projectDetail = await project.findOne({ name: projectName });
-        const member = await User.findOne({ name: memberName });
-        if (!title || !projectDetail || !member) {
+        const projectDetail = await project.findOne({ name: new RegExp(`^${taskProjectName.trim()}$`, 'i') });
+        const member = await User.findOne({ name: taskMemberName.trim() });
+
+        if (!taskTitle || !projectDetail || !member) {
             return res.status(400).json({ message: "All fields are required" });
         }
 
+
         const task = await Task.create({
-            title,
+            title: taskTitle,
             projectId: projectDetail._id,
             assignedTo: member._id,
-            status
+            taskStatus
         });
 
         await task.save();
         res.status(201).json(task);
     } catch (error) {
+        console.log(error)
         res.status(500).json({ error: error.message });
     }
 };
@@ -81,5 +84,16 @@ const updateTask = async (req, res) => {
         res.status(500).json({ error: error.message });
     }
 };
+const deleteTask = async (req, res) => {
+    try {
+        const task = await Task.findByIdAndDelete(req.params.id,);
 
-module.exports = { getTask, getMemberTask, addTask, updateTask };
+        if (!task) return res.status(404).json({ message: 'Not found' });
+
+        return res.status(200).json(task);
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+};
+
+module.exports = { getTask, getMemberTask, addTask, updateTask, deleteTask };

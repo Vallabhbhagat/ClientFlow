@@ -1,16 +1,16 @@
 const express = require("express");
 const router = express.Router();
-const { authMiddleware, isAdmin } = require("../middleware/authMiddleware.js")
+const { adminAuth } = require("../middleware/authMiddleware.js")
 const { getClient, searchClient, addClient, updateClient, deleteClient } = require("../controllers/clientController.js");
 
-router.get("/", authMiddleware, isAdmin, getClient);
+router.get("/", adminAuth , getClient);
 
-router.get("/search", authMiddleware, isAdmin, searchClient);
+router.get("/search", adminAuth , searchClient);
 
-router.post("/add", authMiddleware, isAdmin, addClient);
+router.post("/add", adminAuth , addClient);
 
-router.put("/:id", authMiddleware, isAdmin, updateClient);
+router.put("/:id", adminAuth , updateClient);
 
-router.delete("/:id", authMiddleware, isAdmin, deleteClient);
+router.delete("/:id", adminAuth , deleteClient);
 
 module.exports = router;

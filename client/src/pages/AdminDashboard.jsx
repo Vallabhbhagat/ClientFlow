@@ -4,12 +4,12 @@ import { useNavigate } from "react-router-dom";
 const AdminDashboard = () => {
     const navigate = useNavigate();
 
-    // ================= STATE =================
     const [name, setName] = useState("");
     const [email, setEmail] = useState("");
     const [search, setSearch] = useState("");
 
     const [clients, setClients] = useState([]);
+    const [total, setTotal] = useState(0);
     const [teamMembers, setTeamMembers] = useState([]);
     const [projects, setProjects] = useState([]);
     const [tasks, setTasks] = useState([]);
@@ -23,6 +23,9 @@ const AdminDashboard = () => {
     const [taskMemberName, setTaskMemberName] = useState("");
     const [taskStatus, setTaskStatus] = useState("To Do");
 
+    const [projectStatuses, setProjectStatuses] = useState({});
+    const [taskStatuses, setTaskStatuses] = useState({});
+
     // ================= FETCH HELPER =================
     const fetchWithAuth = async (url, options = {}) => {
         const res = await fetch(url, {
@@ -31,12 +34,12 @@ const AdminDashboard = () => {
             ...options,
         });
 
-        if (res.status === 403) {
+        if (!res.ok) {
             navigate("/");
             return null;
         }
 
-        return res.json();
+        return await res.json();
     };
 
     // ================= INITIAL LOAD =================
@@ -47,19 +50,16 @@ const AdminDashboard = () => {
         fetchTasks();
     }, []);
 
-    // ================= SEARCH =================
     useEffect(() => {
-        if (search.trim()) {
-            handleSearch();
-        } else {
-            fetchClients();
-        }
+        if (search.trim()) handleSearch();
+        else fetchClients();
     }, [search]);
 
     // ================= FETCH FUNCTIONS =================
     const fetchClients = async () => {
         const data = await fetchWithAuth("http://localhost:5000/api/client");
         if (data) setClients(Array.isArray(data.data) ? data.data : []);
+        setTotal(data.data);
     };
 
     const fetchTeamMembers = async () => {
@@ -87,7 +87,6 @@ const AdminDashboard = () => {
     // ================= ADD CLIENT =================
     const handleAddClient = async (e) => {
         e.preventDefault();
-
         const res = await fetch("http://localhost:5000/api/client/add", {
             method: "POST",
             credentials: "include",
@@ -99,15 +98,12 @@ const AdminDashboard = () => {
             setName("");
             setEmail("");
             fetchClients();
-        } else {
-            alert("Failed to add client");
         }
     };
 
     // ================= ADD PROJECT =================
     const handleAddProject = async (e) => {
         e.preventDefault();
-
         const res = await fetch("http://localhost:5000/api/project/add", {
             method: "POST",
             credentials: "include",
@@ -124,8 +120,6 @@ const AdminDashboard = () => {
             setProjectClientEmail("");
             setProjectStatus("To Do");
             fetchProjects();
-        } else {
-            alert("Failed to add project");
         }
     };
 
@@ -138,10 +132,10 @@ const AdminDashboard = () => {
             credentials: "include",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({
-                title: taskTitle,
-                projectName: taskProjectName,
-                memberName: taskMemberName,
-                status: taskStatus,
+                taskTitle,
+                taskProjectName,
+                taskMemberName,
+                taskStatus
             }),
         });
 
@@ -152,13 +146,92 @@ const AdminDashboard = () => {
             setTaskStatus("To Do");
             fetchTasks();
         } else {
-            alert("Failed to add task");
+            const errorData = await res.json();
+            console.error(errorData.message);
+        }
+    };
+
+
+
+    // ================= UPDATE PROJECT =================
+    const handleInlineProjectChange = (projectId, newStatus) => {
+        setProjectStatuses((prev) => ({ ...prev, [projectId]: newStatus }));
+    };
+
+    const handleUpdateProject = async (projectId) => {
+        const newStatus = projectStatuses[projectId];
+        if (!newStatus) return;
+
+        try {
+            const res = await fetch(`http://localhost:5000/api/project/${projectId}`, {
+                method: "PUT",
+                credentials: "include",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ status: newStatus }),
+            });
+            if (res.ok) {
+                fetchProjects();
+                setProjectStatuses((prev) => ({ ...prev, [projectId]: undefined }));
+            }
+        } catch (err) {
+            console.error(err);
+        }
+    };
+
+    const handleDeleteProject = async (projectId) => {
+        try {
+            const res = await fetch(`http://localhost:5000/api/project/${projectId}`, {
+                method: "DELETE",
+                credentials: "include",
+                headers: { "Content-Type": "application/json" },
+            });
+            if (res.ok) fetchProjects();
+        } catch (err) {
+            console.error(err);
+        }
+    };
+
+    // ================= UPDATE TASK =================
+    const handleInlineTaskChange = (taskId, newStatus) => {
+        setTaskStatuses((prev) => ({ ...prev, [taskId]: newStatus }));
+    };
+
+    const handleUpdateTask = async (taskId) => {
+        const newStatus = taskStatuses[taskId];
+        if (!newStatus) return;
+
+        try {
+            const res = await fetch(`http://localhost:5000/api/task/${taskId}`, {
+                method: "PUT",
+                credentials: "include",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ status: newStatus }),
+            });
+            if (res.ok) {
+                fetchTasks();
+                setTaskStatuses((prev) => ({ ...prev, [taskId]: undefined }));
+            }
+        } catch (err) {
+            console.error(err);
+        }
+    };
+
+    const handleDeleteTask = async (taskId) => {
+        try {
+            const res = await fetch(`http://localhost:5000/api/task/${taskId}`, {
+                method: "DELETE",
+                credentials: "include",
+                headers: { "Content-Type": "application/json" },
+            });
+            if (res.ok) fetchTasks();
+        } catch (err) {
+            console.error(err);
         }
     };
 
     // ================= LOGOUT =================
     const handleLogout = async () => {
-        await fetch("http://localhost:5000/api/auth/logout", {
+        await fetch("http://localhost:5000/api/auth/logout/admin", {
             method: "POST",
             credentials: "include",
             headers: { "Content-Type": "application/json" },
@@ -202,16 +275,23 @@ const AdminDashboard = () => {
             <ul>
                 {projects.map((p) => (
                     <li key={p._id}>
-                        {p.name} — {p.clientId?.email} — {p.status}
+                        {p.name} — {p.clientId?.email} —
+                        <select value={projectStatuses[p._id] || p.status} onChange={(e) => handleInlineProjectChange(p._id, e.target.value)}>
+                            <option>To Do</option>
+                            <option>In Progress</option>
+                            <option>Completed</option>
+                        </select>
+                        <button onClick={() => handleUpdateProject(p._id)}>Save</button>
+                        <button onClick={() => handleDeleteProject(p._id)}>Delete</button>
                     </li>
                 ))}
             </ul>
 
             <h1>Add Task</h1>
             <form onSubmit={handleAddTask}>
-                <input value={taskTitle} onChange={(e) => setTaskTitle(e.target.value)} placeholder="Task Title" required />
-                <input value={taskProjectName} onChange={(e) => setTaskProjectName(e.target.value)} placeholder="Project Name" required />
-                <input value={taskMemberName} onChange={(e) => setTaskMemberName(e.target.value)} placeholder="Member Name" required />
+                <input value={taskTitle.toLowerCase().trim()} onChange={(e) => setTaskTitle(e.target.value)} placeholder="Task Title" required />
+                <input value={taskProjectName.toLowerCase().trim()} onChange={(e) => setTaskProjectName(e.target.value)} placeholder="Project Name" required />
+                <input value={taskMemberName.toLowerCase().trim()} onChange={(e) => setTaskMemberName(e.target.value)} placeholder="Member Name" required />
                 <select value={taskStatus} onChange={(e) => setTaskStatus(e.target.value)}>
                     <option>To Do</option>
                     <option>In progress</option>
@@ -224,8 +304,23 @@ const AdminDashboard = () => {
             <ul>
                 {tasks.map((t) => (
                     <li key={t._id}>
-                        {t.title} — {t.projectId?.name} — {t.assignedTo?.name} — {t.status}
+                        {t.title} — {t.projectId?.name} — {t.assignedTo?.name} —
+                        <select value={taskStatuses[t._id] || t.status} onChange={(e) => handleInlineTaskChange(t._id, e.target.value)}>
+                            <option>To Do</option>
+                            <option>In progress</option>
+                            <option>Completed</option>
+                        </select>
+                        <button onClick={() => handleUpdateTask(t._id)}>Save</button>
+                        <button onClick={() => handleDeleteTask(t._id)}>Delete</button>
                     </li>
+                ))}
+            </ul>
+
+            <h1>All Clients</h1>
+            <p>Total Client: {total.length}</p>
+            <ul>
+                {clients.map((c) => (
+                    <li key={c._id}>{c.name} — {c.email}</li>
                 ))}
             </ul>
         </div>

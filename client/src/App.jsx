@@ -14,9 +14,8 @@ const App = () => {
         <Route path='/admin-dashboard' element={<AdminDashboard />} />
         <Route path='/member-dashboard' element={<MemberDashboard />} />
       </Routes>
-
     </div>
   )
-}
+};
 
 export default App
