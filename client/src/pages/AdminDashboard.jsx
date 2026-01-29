@@ -6,11 +6,7 @@ const AdminDashboard = () => {
 
     const [name, setName] = useState("");
     const [email, setEmail] = useState("");
-    const [search, setSearch] = useState("");
 
-    const [clients, setClients] = useState([]);
-    const [total, setTotal] = useState(0);
-    const [teamMembers, setTeamMembers] = useState([]);
     const [projects, setProjects] = useState([]);
     const [tasks, setTasks] = useState([]);
 
@@ -44,28 +40,9 @@ const AdminDashboard = () => {
 
     // ================= INITIAL LOAD =================
     useEffect(() => {
-        fetchClients();
-        fetchTeamMembers();
         fetchProjects();
         fetchTasks();
     }, []);
-
-    useEffect(() => {
-        if (search.trim()) handleSearch();
-        else fetchClients();
-    }, [search]);
-
-    // ================= FETCH FUNCTIONS =================
-    const fetchClients = async () => {
-        const data = await fetchWithAuth("http://localhost:5000/api/client");
-        if (data) setClients(Array.isArray(data.data) ? data.data : []);
-        setTotal(data.data);
-    };
-
-    const fetchTeamMembers = async () => {
-        const data = await fetchWithAuth("http://localhost:5000/api/team");
-        if (data) setTeamMembers(Array.isArray(data.data) ? data.data : []);
-    };
 
     const fetchProjects = async () => {
         const data = await fetchWithAuth("http://localhost:5000/api/project");
@@ -77,12 +54,6 @@ const AdminDashboard = () => {
         if (data) setTasks(Array.isArray(data.data) ? data.data : []);
     };
 
-    const handleSearch = async () => {
-        const data = await fetchWithAuth(
-            `http://localhost:5000/api/client/search?name=${search}`
-        );
-        if (data) setClients(Array.isArray(data.data) ? data.data : []);
-    };
 
     // ================= ADD CLIENT =================
     const handleAddClient = async (e) => {
@@ -97,7 +68,6 @@ const AdminDashboard = () => {
         if (res.ok) {
             setName("");
             setEmail("");
-            fetchClients();
         }
     };
 
@@ -239,16 +209,15 @@ const AdminDashboard = () => {
         navigate("/");
     };
 
+    const handleClient = () => {
+        navigate("/clients")
+    }
+
     // ================= UI =================
     return (
         <div>
             <nav>
-                <input
-                    type="text"
-                    value={search}
-                    onChange={(e) => setSearch(e.target.value)}
-                    placeholder="search client..."
-                />
+                <button onClick={handleClient}>All Clients</button>
                 <button onClick={handleLogout}>Logout</button>
             </nav>
 
@@ -313,14 +282,6 @@ const AdminDashboard = () => {
                         <button onClick={() => handleUpdateTask(t._id)}>Save</button>
                         <button onClick={() => handleDeleteTask(t._id)}>Delete</button>
                     </li>
-                ))}
-            </ul>
-
-            <h1>All Clients</h1>
-            <p>Total Client: {total.length}</p>
-            <ul>
-                {clients.map((c) => (
-                    <li key={c._id}>{c.name} — {c.email}</li>
                 ))}
             </ul>
         </div>

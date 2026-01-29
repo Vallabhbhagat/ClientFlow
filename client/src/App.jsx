@@ -4,6 +4,7 @@ import Login from "./pages/Login.jsx"
 import Register from './pages/Register.jsx'
 import AdminDashboard from './pages/AdminDashboard.jsx'
 import MemberDashboard from "./pages/MemberDashboard.jsx"
+import ClientsPage from './pages/ClientPage.jsx'
 
 const App = () => {
   return (
@@ -12,6 +13,7 @@ const App = () => {
         <Route path='/' element={<Login />} />
         <Route path='/register' element={<Register />} />
         <Route path='/admin-dashboard' element={<AdminDashboard />} />
+        <Route path='/clients' element={<ClientsPage />} />
         <Route path='/member-dashboard' element={<MemberDashboard />} />
       </Routes>
     </div>
