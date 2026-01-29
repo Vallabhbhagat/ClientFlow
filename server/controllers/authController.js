@@ -1,6 +1,7 @@
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 const User = require("../models/User");
+const TeamMember = require("../models/TeamMember");
 
 const register = async (req, res) => {
     const { name, email, password, role } = req.body;
@@ -18,6 +19,13 @@ const register = async (req, res) => {
         password: hashedPassword,
         role
     });
+
+    if (role === "teamMember") {
+        await TeamMember.create({
+            name,
+            userId: user._id
+        });
+    }
 
     res.status(201).json({ message: "User registered" });
 };
@@ -50,7 +58,11 @@ const login = async (req, res) => {
 
     res.json({
         message: "Login success",
-        role: user.role
+        user: {
+            name: user.name,
+            email: user.email,
+            role: user.role
+        }
     });
 };
 

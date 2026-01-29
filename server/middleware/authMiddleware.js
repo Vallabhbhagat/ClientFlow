@@ -1,4 +1,5 @@
 const jwt = require("jsonwebtoken");
+const User = require("../models/User");
 
 const authMiddleware = (req, res, next) => {
     const token = req.cookies.token;
@@ -24,7 +25,7 @@ const isAdmin = (req, res, next) => {
 };
 
 const isMember = (req, res, next) => {
-    if (!req.user || req.user.role !== "member") {
+    if (req.user.role !== "teamMember") {
         return res.status(403).json({ message: "Members only" });
     }
     next();

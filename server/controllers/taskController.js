@@ -1,6 +1,19 @@
 const Task = require("../models/Task.js");
 const project = require("../models/Project.js");
 const teamMember = require("../models/TeamMember.js");
+const User = require("../models/User.js");
+
+const getTask = async (req, res) => {
+    try {
+        const tasks = await Task.find().populate('projectId', 'name').populate('assignedTo', 'name');
+        res.status(200).json({
+            count: tasks.length,
+            data: tasks
+        });
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+};
 
 const getMemberTask = async (req, res) => {
     try {
@@ -29,7 +42,7 @@ const addTask = async (req, res) => {
         const { title, projectName, memberName, status } = req.body;
 
         const projectDetail = await project.findOne({ name: projectName });
-        const member = await teamMember.findOne({ name: memberName });
+        const member = await User.findOne({ name: memberName });
         if (!title || !projectDetail || !member) {
             return res.status(400).json({ message: "All fields are required" });
         }
@@ -41,6 +54,7 @@ const addTask = async (req, res) => {
             status
         });
 
+        await task.save();
         res.status(201).json(task);
     } catch (error) {
         res.status(500).json({ error: error.message });
@@ -68,4 +82,4 @@ const updateTask = async (req, res) => {
     }
 };
 
-module.exports = { getMemberTask, addTask, updateTask };
+module.exports = { getTask, getMemberTask, addTask, updateTask };

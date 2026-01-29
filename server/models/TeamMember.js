@@ -8,7 +8,12 @@ const teamMemberSchema = new mongoose.Schema({
   role: {
     type: String,
     default: "Developer"
+  },
+  userId: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "User"
   }
+
 }, { timestamps: true });
 
 module.exports = mongoose.model("TeamMember", teamMemberSchema);

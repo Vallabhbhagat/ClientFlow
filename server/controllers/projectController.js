@@ -1,6 +1,18 @@
 const Project = require("../models/Project.js");
 const Client = require("../models/Client.js")
 
+const getProject = async (req, res) => {
+    try {
+        const projects = await Project.find().populate('clientId', 'name email');
+        res.status(200).json({
+            count: projects.length,
+            data: projects
+        });
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+};
+
 const addProject = async (req, res) => {
     try {
         const { clientEmail, name, status } = req.body;
@@ -54,4 +66,4 @@ const updateProject = async (req, res) => {
     }
 };
 
-module.exports = {addProject , updateProject};
+module.exports = { getProject, addProject, updateProject };

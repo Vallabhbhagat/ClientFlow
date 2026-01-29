@@ -8,7 +8,7 @@ const taskSchema = new mongoose.Schema({
   },
   assignedTo: {
     type: mongoose.Schema.Types.ObjectId,
-    ref: "TeamMember",
+    ref: "User",
     required: true
   },
   title: {

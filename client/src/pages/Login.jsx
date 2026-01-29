@@ -6,6 +6,7 @@ const Login = () => {
 
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
+    const [user, setUser] = useState("");
 
     const handleLogin = async (e) => {
         e.preventDefault();
@@ -24,12 +25,13 @@ const Login = () => {
             }
 
             const data = await res.json()
-            console.log(data.role)
-            alert("Successful Login!")
 
-            if (data.role === "admin"){
+            alert("Successful Login!")
+            console.log(data.user);
+            setUser(data.user);
+            if (data.user.role === "admin") {
                 navigate("/admin-dashboard");
-            }else{
+            } else {
                 navigate("/member-dashboard")
             }
 

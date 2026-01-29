@@ -1,5 +1,6 @@
 const TeamMember = require("../models/TeamMember.js");
 const Task = require("../models/Task.js");
+const User = require("../models/User.js");
 
 const getMember = async (req, res) => {
     try {
@@ -16,14 +17,29 @@ const getMember = async (req, res) => {
 
 const addMember = async (req, res) => {
     try {
-        const { name, role } = req.body;
-        if (!name && !role) {
-            return res.status(400).json({ message: "Name and role are required" });
+        const { email, role } = req.body;
+        if (!email || !role) {
+            return res.status(400).json({ message: "Email and role are required" });
+        }
+
+        const user = await User.findOne({ email });
+        if (!user) {
+            return res.status(404).json({ message: "User not found" });
+        }
+
+        if (user.role !== "teamMember") {
+            return res.status(400).json({ message: "User is not a team member" });
+        }
+
+        const existingMember = await TeamMember.findOne({ userId: user._id });
+        if (existingMember) {
+            return res.status(400).json({ message: "Team member already exists" });
         }
 
         const teamMember = await TeamMember.create({
-            name,
-            role
+            name: user.name,
+            role,
+            userId: user._id
         });
 
         res.status(201).json(teamMember);

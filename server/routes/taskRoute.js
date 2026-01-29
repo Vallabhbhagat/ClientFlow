@@ -1,7 +1,9 @@
 const express = require("express");
 const router = express.Router();
 const { authMiddleware, isAdmin } = require("../middleware/authMiddleware.js");
-const { getMemberTask, addTask, updateTask } = require("../controllers/taskController.js");
+const { getTask, getMemberTask, addTask, updateTask } = require("../controllers/taskController.js");
+
+router.get("/", authMiddleware, isAdmin, getTask);
 
 router.get("/with-tasks", authMiddleware, isAdmin, getMemberTask);
 
