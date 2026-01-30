@@ -1,0 +1,256 @@
+/* Existing styles remain unchanged; adding styles for the Clients section */
+
+/* Clients Container - Similar to Admin Container */
+.clients-container {
+    flex: 1;
+    padding: 2.5rem;
+    display: flex;
+    justify-content: center;
+    max-width: 1400px;
+    margin: 0 auto;
+}
+
+/* Clients Card - Matching Rectangle Card Style */
+.clients-card {
+    background-color: #ffffff;
+    border-radius: 12px;
+    box-shadow: 0 8px 24px rgba(74, 144, 226, 0.1);
+    padding: 2rem;
+    transition: all 0.3s ease;
+    border: 2px solid #dee2e6;
+    width: 100%;
+    max-width: 800px; /* Limit width for focus */
+    height: 450px; /* Match rectangle height */
+    display: flex;
+    flex-direction: column;
+}
+
+.clients-card:hover {
+    box-shadow: 0 12px 32px rgba(74, 144, 226, 0.2);
+    transform: translateY(-4px);
+    border-color: #7b68ee;
+}
+
+/* Clients Header - Flex Layout */
+.clients-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1.5rem;
+    padding-bottom: 1rem;
+    border-bottom: 2px solid #dee2e6;
+    flex-wrap: wrap;
+    gap: 1rem;
+}
+
+.clients-header .nav-left h3 {
+    font-size: 1.25rem;
+    font-weight: 600;
+    color: #4a90e2;
+    margin: 0;
+}
+
+.clients-header .nav-right {
+    display: flex;
+    gap: 1rem;
+    align-items: center;
+}
+
+.btn-home {
+    background-color: transparent;
+    color: #4a90e2;
+    border: 2px solid #4a90e2;
+    padding: 0.5rem 1rem;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    font-size: 0.9rem;
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+
+.btn-home:hover {
+    background-color: #4a90e2;
+    color: white;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(74, 144, 226, 0.3);
+}
+
+/* Clients Controls - Search and Total */
+.clients-controls {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+    align-items: flex-end;
+    flex: 1;
+    min-width: 200px;
+}
+
+.search-input {
+    padding: 0.75rem 1rem;
+    border: 2px solid #dee2e6;
+    border-radius: 8px;
+    font-size: 1rem;
+    transition: all 0.3s ease;
+    background-color: #f8f9fa;
+    width: 100%;
+    max-width: 250px;
+}
+
+.search-input:focus {
+    outline: none;
+    border-color: #4a90e2;
+    box-shadow: 0 0 0 3px rgba(74, 144, 226, 0.15);
+    background-color: white;
+}
+
+.clients-total {
+    font-size: 0.9rem;
+    color: #495057;
+    margin: 0;
+    font-weight: 500;
+}
+
+.clients-total strong {
+    color: #4a90e2;
+}
+
+/* Clients List - Scrollable if needed */
+.clients-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+    flex-grow: 1;
+    overflow-y: auto; /* Scroll if list is long */
+}
+
+/* Client Item */
+.client-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    padding: 1rem;
+    background-color: #f8f9fa;
+    border: 1px solid #dee2e6;
+    border-radius: 8px;
+    transition: all 0.3s ease;
+}
+
+.client-item:hover {
+    background-color: #e9ecef;
+    border-color: #7b68ee;
+    box-shadow: 0 4px 8px rgba(123, 104, 238, 0.1);
+}
+
+.client-info {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+    flex-grow: 1;
+}
+
+.client-name {
+    font-size: 1rem;
+    font-weight: 600;
+    color: #495057;
+}
+
+.client-email {
+    font-size: 0.9rem;
+    color: #6c757d;
+}
+
+.btn-delete {
+    background: linear-gradient(135deg, #ff6b6b 0%, #ffa726 100%);
+    color: white;
+    border: none;
+    padding: 0.5rem 1rem;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 0.9rem;
+    font-weight: 600;
+    transition: all 0.3s ease;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    box-shadow: 0 2px 6px rgba(255, 107, 107, 0.3);
+}
+
+.btn-delete:hover {
+    background: linear-gradient(135deg, #ffa726 0%, #ff5722 100%);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 10px rgba(255, 107, 107, 0.4);
+}
+
+/* Responsive Adjustments for Clients Section */
+@media (max-width: 768px) {
+    .clients-container {
+        padding: 1.5rem 1rem;
+    }
+
+    .clients-card {
+        padding: 1.5rem;
+        height: auto; /* Flexible on mobile */
+        max-width: none;
+    }
+
+    .clients-header {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 1rem;
+        text-align: center;
+    }
+
+    .clients-controls {
+        align-items: center;
+        flex-direction: row;
+        justify-content: space-between;
+        min-width: auto;
+    }
+
+    .search-input {
+        max-width: 200px;
+    }
+
+    .client-item {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 0.75rem;
+        padding: 0.75rem;
+    }
+
+    .client-info {
+        text-align: center;
+    }
+
+    .btn-delete {
+        width: 100%;
+    }
+}
+
+@media (max-width: 480px) {
+    .clients-header .nav-left h3 {
+        font-size: 1.1rem;
+    }
+
+    .clients-controls {
+        flex-direction: column;
+        gap: 0.5rem;
+    }
+
+    .search-input {
+        max-width: none;
+    }
+
+    .clients-list {
+        gap: 0.5rem;
+    }
+
+    .client-item {
+        padding: 0.5rem;
+    }
+}

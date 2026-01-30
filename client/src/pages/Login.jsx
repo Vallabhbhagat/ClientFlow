@@ -1,5 +1,6 @@
 import React, { useState } from 'react'
 import { Link, useNavigate } from "react-router-dom"
+import "../style/Login.css"
 
 const Login = () => {
     const navigate = useNavigate();
@@ -43,38 +44,42 @@ const Login = () => {
     }
 
     return (
-        <div>
-            <h2>Login</h2>
-            <form onSubmit={handleLogin}>
-                <div>
-                    <label>Email</label>
-                    <input
-                        value={email.toLowerCase().trim()}
-                        onChange={e => setEmail(e.target.value)}
-                        type="email"
-                        placeholder="you@example.com"
-                    />
-                </div>
+        <div className="auth-container">
+            <div className="auth-card">
+                <h2>Login</h2>
 
-                <div>
-                    <label>Password</label>
-                    <input
-                        value={password}
-                        onChange={e => setPassword(e.target.value)}
-                        type="password"
-                        placeholder="********"
-                    />
-                </div>
+                <form onSubmit={handleLogin}>
+                    <div className="form-group">
+                        <label>Email</label>
+                        <input
+                            value={email.toLowerCase().trim()}
+                            onChange={e => setEmail(e.target.value)}
+                            type="email"
+                            placeholder="you@example.com"
+                        />
+                    </div>
 
-                <div>
-                    <button type="submit">Login</button>
-                    <br />
-                    <small>
+                    <div className="form-group">
+                        <label>Password</label>
+                        <input
+                            value={password}
+                            onChange={e => setPassword(e.target.value)}
+                            type="password"
+                            placeholder="********"
+                        />
+                    </div>
+
+                    <button type="submit" className="btn-primary">
+                        Login
+                    </button>
+
+                    <small className="auth-footer">
                         Don't have an account? <Link to="/register">Register</Link>
                     </small>
-                </div>
-            </form>
+                </form>
+            </div>
         </div>
+
     );
 }
 

@@ -1,0 +1,207 @@
+/* ===========================
+   Universal Box Sizing
+=========================== */
+*, *::before, *::after {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+/* ===========================
+   Tasks Container
+=========================== */
+.tasks-container {
+    display: flex;
+    justify-content: center;
+    align-items: flex-start; /* top align for long content */
+    min-height: 100vh;
+    background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+    padding: 2rem;
+}
+
+/* ===========================
+   Tasks Card
+=========================== */
+.tasks-card {
+    background-color: #ffffff;
+    border-radius: 12px;
+    box-shadow: 0 8px 24px rgba(74, 144, 226, 0.1);
+    padding: 2.5rem;
+    width: 100%;
+    max-width: 800px;
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+    border: 2px solid #dee2e6;
+    transition: all 0.3s ease;
+
+    /* Auto-expand with content */
+    height: auto;
+    overflow: visible;
+}
+
+/* Hover Effect */
+.tasks-card:hover {
+    box-shadow: 0 12px 32px rgba(74, 144, 226, 0.2);
+    border-color: #7b68ee;
+}
+
+/* ===========================
+   Clients Header
+=========================== */
+.clients-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 2px solid #dee2e6;
+    padding-bottom: 1rem;
+    margin-bottom: 1.5rem;
+    flex-wrap: wrap;
+    gap: 1rem;
+}
+
+.clients-header .nav-left h3 {
+    font-size: 1.25rem;
+    font-weight: 600;
+    color: #4a90e2;
+}
+
+.clients-header .nav-right {
+    display: flex;
+    gap: 1rem;
+    align-items: center;
+}
+
+/* ===========================
+   Buttons
+=========================== */
+.btn-home {
+    background-color: transparent;
+    color: #4a90e2;
+    border: 2px solid #4a90e2;
+    padding: 0.5rem 1rem;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    font-size: 0.9rem;
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+
+.btn-home:hover {
+    background-color: #4a90e2;
+    color: white;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(74, 144, 226, 0.3);
+}
+
+/* ===========================
+   Tasks Title
+=========================== */
+.tasks-card h2 {
+    text-align: center;
+    font-size: 1.5rem;
+    font-weight: 600;
+    color: #4a90e2;
+    border-bottom: 2px solid #7b68ee;
+    padding-bottom: 0.5rem;
+}
+
+/* ===========================
+   Tasks List
+=========================== */
+.tasks-list {
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+
+    /* Prevent scrolling, auto-expand */
+    flex: 0 0 auto;
+    min-height: 0;
+    overflow: visible;
+}
+
+/* ===========================
+   Task Item
+=========================== */
+.task-item {
+    background-color: #f8f9fa;
+    border: 1px solid #dee2e6;
+    border-radius: 8px;
+    padding: 1.5rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+    transition: all 0.3s ease;
+}
+
+.task-item:hover {
+    background-color: #e9ecef;
+    border-color: #7b68ee;
+    box-shadow: 0 4px 8px rgba(123, 104, 238, 0.1);
+    transform: translateY(-2px);
+}
+
+/* Task Info */
+.task-info {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.task-title {
+    font-weight: 600;
+    color: #4a90e2;
+    font-size: 0.95rem;
+}
+
+.task-project,
+.task-assigned,
+.task-status {
+    font-size: 0.95rem;
+    color: #495057;
+    font-weight: 500;
+}
+
+/* ===========================
+   Responsive Design
+=========================== */
+@media (max-width: 768px) {
+    .tasks-container {
+        padding: 1rem;
+    }
+
+    .tasks-card {
+        padding: 2rem;
+        max-width: 100%;
+    }
+
+    .task-item {
+        padding: 1rem;
+    }
+
+    .task-info {
+        gap: 0.25rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .clients-header {
+        flex-direction: column;
+        text-align: center;
+    }
+
+    .tasks-card h2 {
+        font-size: 1.25rem;
+    }
+
+    .tasks-list {
+        gap: 0.75rem;
+    }
+
+    .task-item {
+        padding: 0.75rem;
+    }
+}

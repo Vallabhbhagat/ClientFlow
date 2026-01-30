@@ -1,14 +1,12 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import "../style/AdminD.css";
 
 const AdminDashboard = () => {
     const navigate = useNavigate();
 
     const [name, setName] = useState("");
     const [email, setEmail] = useState("");
-
-    const [projects, setProjects] = useState([]);
-    const [tasks, setTasks] = useState([]);
 
     const [projectName, setProjectName] = useState("");
     const [projectClientEmail, setProjectClientEmail] = useState("");
@@ -19,8 +17,6 @@ const AdminDashboard = () => {
     const [taskMemberName, setTaskMemberName] = useState("");
     const [taskStatus, setTaskStatus] = useState("To Do");
 
-    const [projectStatuses, setProjectStatuses] = useState({});
-    const [taskStatuses, setTaskStatuses] = useState({});
 
     // ================= FETCH HELPER =================
     const fetchWithAuth = async (url, options = {}) => {
@@ -38,23 +34,6 @@ const AdminDashboard = () => {
         return await res.json();
     };
 
-    // ================= INITIAL LOAD =================
-    useEffect(() => {
-        fetchProjects();
-        fetchTasks();
-    }, []);
-
-    const fetchProjects = async () => {
-        const data = await fetchWithAuth("http://localhost:5000/api/project");
-        if (data) setProjects(Array.isArray(data.data) ? data.data : []);
-    };
-
-    const fetchTasks = async () => {
-        const data = await fetchWithAuth("http://localhost:5000/api/task");
-        if (data) setTasks(Array.isArray(data.data) ? data.data : []);
-    };
-
-
     // ================= ADD CLIENT =================
     const handleAddClient = async (e) => {
         e.preventDefault();
@@ -68,6 +47,7 @@ const AdminDashboard = () => {
         if (res.ok) {
             setName("");
             setEmail("");
+            alert("Client added succsessfully");
         }
     };
 
@@ -89,7 +69,7 @@ const AdminDashboard = () => {
             setProjectName("");
             setProjectClientEmail("");
             setProjectStatus("To Do");
-            fetchProjects();
+            alert("Project added succsessfully");
         }
     };
 
@@ -114,88 +94,10 @@ const AdminDashboard = () => {
             setTaskProjectName("");
             setTaskMemberName("");
             setTaskStatus("To Do");
-            fetchTasks();
+            alert("Task added succsessfully");
         } else {
             const errorData = await res.json();
             console.error(errorData.message);
-        }
-    };
-
-
-
-    // ================= UPDATE PROJECT =================
-    const handleInlineProjectChange = (projectId, newStatus) => {
-        setProjectStatuses((prev) => ({ ...prev, [projectId]: newStatus }));
-    };
-
-    const handleUpdateProject = async (projectId) => {
-        const newStatus = projectStatuses[projectId];
-        if (!newStatus) return;
-
-        try {
-            const res = await fetch(`http://localhost:5000/api/project/${projectId}`, {
-                method: "PUT",
-                credentials: "include",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ status: newStatus }),
-            });
-            if (res.ok) {
-                fetchProjects();
-                setProjectStatuses((prev) => ({ ...prev, [projectId]: undefined }));
-            }
-        } catch (err) {
-            console.error(err);
-        }
-    };
-
-    const handleDeleteProject = async (projectId) => {
-        try {
-            const res = await fetch(`http://localhost:5000/api/project/${projectId}`, {
-                method: "DELETE",
-                credentials: "include",
-                headers: { "Content-Type": "application/json" },
-            });
-            if (res.ok) fetchProjects();
-        } catch (err) {
-            console.error(err);
-        }
-    };
-
-    // ================= UPDATE TASK =================
-    const handleInlineTaskChange = (taskId, newStatus) => {
-        setTaskStatuses((prev) => ({ ...prev, [taskId]: newStatus }));
-    };
-
-    const handleUpdateTask = async (taskId) => {
-        const newStatus = taskStatuses[taskId];
-        if (!newStatus) return;
-
-        try {
-            const res = await fetch(`http://localhost:5000/api/task/${taskId}`, {
-                method: "PUT",
-                credentials: "include",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ status: newStatus }),
-            });
-            if (res.ok) {
-                fetchTasks();
-                setTaskStatuses((prev) => ({ ...prev, [taskId]: undefined }));
-            }
-        } catch (err) {
-            console.error(err);
-        }
-    };
-
-    const handleDeleteTask = async (taskId) => {
-        try {
-            const res = await fetch(`http://localhost:5000/api/task/${taskId}`, {
-                method: "DELETE",
-                credentials: "include",
-                headers: { "Content-Type": "application/json" },
-            });
-            if (res.ok) fetchTasks();
-        } catch (err) {
-            console.error(err);
         }
     };
 
@@ -212,79 +114,127 @@ const AdminDashboard = () => {
     const handleClient = () => {
         navigate("/clients")
     }
+    const handleProject = () => {
+        navigate("/projects")
+    }
+    const handleTask = () => {
+        navigate("/tasks")
+    }
 
     // ================= UI =================
     return (
-        <div>
-            <nav>
-                <button onClick={handleClient}>All Clients</button>
-                <button onClick={handleLogout}>Logout</button>
+        <div className="admin-page">
+            {/* NAV */}
+            <nav className="admin-nav">
+                <div className="nav-left">
+                    <h3>ClientFlow</h3>
+                </div>
+
+                {/* Hamburger Menu Toggle */}
+                <input type="checkbox" id="nav-toggle" className="nav-toggle" />
+                <label htmlFor="nav-toggle" className="nav-toggle-label">☰</label>
+
+                <div className="nav-right">
+                    <button className="btn-secondary" onClick={handleTask}>
+                        Assigned Tasks
+                    </button>
+                    <button className="btn-secondary" onClick={handleProject}>
+                        All Project
+                    </button>
+                    <button className="btn-secondary" onClick={handleClient}>
+                        All Clients
+                    </button>
+                    <button className="btn-logout" onClick={handleLogout}>
+                        Logout
+                    </button>
+                </div>
             </nav>
 
-            <h1>Add Client</h1>
-            <form onSubmit={handleAddClient}>
-                <input value={name} onChange={(e) => setName(e.target.value)} placeholder="Client Name" required />
-                <input value={email} onChange={(e) => setEmail(e.target.value)} placeholder="Client Email" required />
-                <button>Add</button>
-            </form>
+            <div className="admin-container">
+                {/* ADD CLIENT */}
+                <section className="card">
+                    <h2>Add Client</h2>
+                    <form onSubmit={handleAddClient} className="form-row">
+                        <input
+                            value={name}
+                            onChange={(e) => setName(e.target.value)}
+                            placeholder="Client Name"
+                            required
+                        />
+                        <input
+                            value={email}
+                            onChange={(e) => setEmail(e.target.value)}
+                            placeholder="Client Email"
+                            required
+                        />
+                        <button className="btn-primary">Add Client</button>
+                    </form>
+                </section>
 
-            <h1>Add Project</h1>
-            <form onSubmit={handleAddProject}>
-                <input value={projectName} onChange={(e) => setProjectName(e.target.value)} placeholder="Project Name" required />
-                <input value={projectClientEmail} onChange={(e) => setProjectClientEmail(e.target.value)} placeholder="Client Email" required />
-                <select value={projectStatus} onChange={(e) => setProjectStatus(e.target.value)}>
-                    <option>To Do</option>
-                    <option>In Progress</option>
-                    <option>Completed</option>
-                </select>
-                <button>Add Project</button>
-            </form>
-
-            <h1>Projects</h1>
-            <ul>
-                {projects.map((p) => (
-                    <li key={p._id}>
-                        {p.name} — {p.clientId?.email} —
-                        <select value={projectStatuses[p._id] || p.status} onChange={(e) => handleInlineProjectChange(p._id, e.target.value)}>
+                {/* ADD PROJECT */}
+                <section className="card">
+                    <h2>Add Project</h2>
+                    <form onSubmit={handleAddProject} className="form-row">
+                        <input
+                            value={projectName}
+                            onChange={(e) => setProjectName(e.target.value)}
+                            placeholder="Project Name"
+                            required
+                        />
+                        <input
+                            value={projectClientEmail}
+                            onChange={(e) => setProjectClientEmail(e.target.value)}
+                            placeholder="Client Email"
+                            required
+                        />
+                        <select
+                            value={projectStatus}
+                            onChange={(e) => setProjectStatus(e.target.value)}
+                        >
                             <option>To Do</option>
                             <option>In Progress</option>
                             <option>Completed</option>
                         </select>
-                        <button onClick={() => handleUpdateProject(p._id)}>Save</button>
-                        <button onClick={() => handleDeleteProject(p._id)}>Delete</button>
-                    </li>
-                ))}
-            </ul>
+                        <button className="btn-primary">Add Project</button>
+                    </form>
+                </section>
 
-            <h1>Add Task</h1>
-            <form onSubmit={handleAddTask}>
-                <input value={taskTitle.toLowerCase().trim()} onChange={(e) => setTaskTitle(e.target.value)} placeholder="Task Title" required />
-                <input value={taskProjectName.toLowerCase().trim()} onChange={(e) => setTaskProjectName(e.target.value)} placeholder="Project Name" required />
-                <input value={taskMemberName.toLowerCase().trim()} onChange={(e) => setTaskMemberName(e.target.value)} placeholder="Member Name" required />
-                <select value={taskStatus} onChange={(e) => setTaskStatus(e.target.value)}>
-                    <option>To Do</option>
-                    <option>In progress</option>
-                    <option>Completed</option>
-                </select>
-                <button>Add Task</button>
-            </form>
-
-            <h1>Tasks</h1>
-            <ul>
-                {tasks.map((t) => (
-                    <li key={t._id}>
-                        {t.title} — {t.projectId?.name} — {t.assignedTo?.name} —
-                        <select value={taskStatuses[t._id] || t.status} onChange={(e) => handleInlineTaskChange(t._id, e.target.value)}>
+                {/* ADD TASK */}
+                <section className="card">
+                    <h2>Add Task</h2>
+                    <form onSubmit={handleAddTask} className="form-row">
+                        <input
+                            value={taskTitle.toLowerCase().trim()}
+                            onChange={(e) => setTaskTitle(e.target.value)}
+                            placeholder="Task Title"
+                            required
+                        />
+                        <input
+                            value={taskProjectName.toLowerCase().trim()}
+                            onChange={(e) => setTaskProjectName(e.target.value)}
+                            placeholder="Project Name"
+                            required
+                        />
+                        <input
+                            value={taskMemberName.toLowerCase().trim()}
+                            onChange={(e) => setTaskMemberName(e.target.value)}
+                            placeholder="Member Name"
+                            required
+                        />
+                        <select
+                            value={taskStatus}
+                            onChange={(e) => setTaskStatus(e.target.value)}
+                        >
                             <option>To Do</option>
                             <option>In progress</option>
                             <option>Completed</option>
                         </select>
-                        <button onClick={() => handleUpdateTask(t._id)}>Save</button>
-                        <button onClick={() => handleDeleteTask(t._id)}>Delete</button>
-                    </li>
-                ))}
-            </ul>
+                        <button className="btn-primary">Add Task</button>
+                    </form>
+                </section>
+            </div>
         </div>
+
     );
 };
 

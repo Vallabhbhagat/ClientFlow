@@ -1,5 +1,6 @@
 import React, { useState } from 'react'
 import { Link, useNavigate } from "react-router-dom"
+import "../style/Register.css"
 
 const Register = () => {
     const navigate = useNavigate();
@@ -11,7 +12,7 @@ const Register = () => {
 
     const handleRegister = async (e) => {
         e.preventDefault();
-        if(!name && !email && !password && !role){
+        if (!name && !email && !password && !role) {
             alert("all credencials are required!")
         }
 
@@ -49,33 +50,55 @@ const Register = () => {
     }
 
     return (
-        <div>
-            <form onSubmit={handleRegister}>
-                <div>
-                    <label>Name</label>
-                    <input value={name.toLowerCase().trim()} onChange={(e) => setName(e.target.value)} type="text" placeholder="your name" />
-                </div>
-                <div>
-                    <label>Email</label>
-                    <input value={email.toLowerCase().trim()} onChange={(e) => setEmail(e.target.value)} type="email" placeholder="you@example.com" />
-                </div>
+        <div className="auth-container">
+    <div className="auth-card">
+        <h2>Register</h2>
 
-                <div>
-                    <label >Password</label>
-                    <input value={password} onChange={(e) => setPassword(e.target.value)} type="password" placeholder="********" />
-                </div>
-                <select value={role} onChange={handleChange}>
-                    <option value="teamMember">Member</option>
-                    <option value="admin">Admin</option>
-                </select>
-
-                <div>
-                    <button type="submit">Register</button>
-                    <br />
-                    <small>Already have account? <Link to="/">Login</Link></small>
-                </div>
-            </form>
-        </div>
+        <form onSubmit={handleRegister}>
+            <div className="form-group">
+                <label className="form-label">Name</label>
+                <input
+                    className="form-input"
+                    value={name.toLowerCase().trim()}
+                    onChange={(e) => setName(e.target.value)}
+                    type="text"
+                    placeholder="your name"
+                />
+            </div>
+            <div className="form-group">
+                <label className="form-label">Email</label>
+                <input
+                    className="form-input"
+                    value={email.toLowerCase().trim()}
+                    onChange={(e) => setEmail(e.target.value)}
+                    type="email"
+                    placeholder="you@example.com"
+                />
+            </div>
+            <div className="form-group">
+                <label className="form-label">Password</label>
+                <input
+                    className="form-input"
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    type="password"
+                    placeholder="********"
+                />
+            </div>
+            <select className="form-select" value={role} onChange={handleChange}>
+                <option value="teamMember">Member</option>
+                <option value="admin">Admin</option>
+            </select>
+            <div className="form-actions">
+                <button className="btn-submit" type="submit">Register</button>
+                <br />
+                <small className="form-footer">
+                    Already have account? <Link to="/">Login</Link>
+                </small>
+            </div>
+        </form>
+    </div>
+</div>
     )
 }
 

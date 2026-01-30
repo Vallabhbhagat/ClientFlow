@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import "../style/MemberD.css"
 
 const MemberDashboard = () => {
     const navigate = useNavigate();
@@ -64,24 +65,58 @@ const MemberDashboard = () => {
     };
 
     return (
-        <div>
-            <nav><button onClick={handleLogout}>Logout</button></nav>
-            <div>
+        <div className="task-dashboard">
+            <nav className="task-nav">
+                <div className="nav-left">
+                    <h3>ClientFlow</h3>
+                </div>
+                <div className="nav-right">
+                    <h3 className="nav-center">Task Dashboard</h3>
+                    <button className="btn-logout" onClick={handleLogout}>
+                        Logout
+                    </button>
+                </div>
+            </nav>
+
+            <div className="task-content">
                 <h2>My Tasks</h2>
-                {tasks.length === 0 ? <p>No task to do</p> : tasks.map(task => (
-                    <div key={task._id}>
-                        <h4>{task.title}</h4>
-                        <p>Status: {task.status}</p>
-                        <select value={taskStatuses[task._id] || task.status} onChange={e => handleStatusChange(task._id, e.target.value)}>
-                            <option>To Do</option>
-                            <option>In progress</option>
-                            <option>Completed</option>
-                        </select>
-                        <button onClick={() => handleUpdateStatus(task._id)}>Update</button>
+
+                {tasks.length === 0 ? (
+                    <p className="empty-state">No task to do</p>
+                ) : (
+                    <div className="task-grid">
+                        {tasks.map(task => (
+                            <div key={task._id} className="task-item">
+                                <h4>{task.title}</h4>
+
+                                <p className={`task-status status-${task.status.replace(" ", "-").toLowerCase()}`}>
+                                    Status: {task.status}
+                                </p>
+
+                                <select
+                                    value={taskStatuses[task._id] || task.status}
+                                    onChange={e =>
+                                        handleStatusChange(task._id, e.target.value)
+                                    }
+                                >
+                                    <option>To Do</option>
+                                    <option>In progress</option>
+                                    <option>Completed</option>
+                                </select>
+
+                                <button
+                                    className="btn-update"
+                                    onClick={() => handleUpdateStatus(task._id)}
+                                >
+                                    Update
+                                </button>
+                            </div>
+                        ))}
                     </div>
-                ))}
+                )}
             </div>
         </div>
+
     );
 };
 
