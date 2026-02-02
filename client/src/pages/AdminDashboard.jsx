@@ -123,7 +123,7 @@ const AdminDashboard = () => {
 
     // ================= UI =================
     return (
-        <div className="admin-page">
+        <div id="adminpage" className="admin-page">
             {/* NAV */}
             <nav className="admin-nav">
                 <div className="nav-left">
@@ -148,7 +148,7 @@ const AdminDashboard = () => {
                         Logout
                     </button>
                 </div>
-            </nav>
+            </nav >
 
             <div className="admin-container">
                 {/* ADD CLIENT */}
@@ -233,7 +233,7 @@ const AdminDashboard = () => {
                     </form>
                 </section>
             </div>
-        </div>
+        </div >
 
     );
 };

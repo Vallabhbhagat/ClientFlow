@@ -73,49 +73,62 @@ const ProjectsPage = () => {
     }
 
     return (
-       <section className="card">
-    <nav>
-        <div className="clients-header">
-            <div className="nav-left">
-                <h3>ClientFlow</h3>
-            </div>
+        <div id="projectpage">
+            <section className="card">
+                <nav>
+                    <div className="clients-header">
+                        <div className="nav-left">
+                            <h3>ClientFlow</h3>
+                        </div>
 
-            <div className="nav-right">
-                <button className="btn-home" onClick={handleHome}>
-                    Home
-                </button>
-            </div>
-        </div>
-    </nav>
-    <h2>Projects</h2>
-    <ul className="data-list">
-        {projects.map((p) => (
-            <li key={p._id} className="data-row">
-                <div className="project-info">
-                    <span className="project-name">Name: {p.name}</span>
-                    <span className="project-client">Client Email: {p.clientId?.email}</span>
-                    <div className="project-actions">
-                        <select
-                            className="status-select"
-                            value={projectStatuses[p._id] || p.status}
-                            onChange={(e) => handleInlineProjectChange(p._id, e.target.value)}
-                        >
-                            <option>To Do</option>
-                            <option>In Progress</option>
-                            <option>Completed</option>
-                        </select>
-                        <button className="btn-primary" onClick={() => handleUpdateProject(p._id)}>
-                            Save
-                        </button>
-                        <button className="btn-danger" onClick={() => handleDeleteProject(p._id)}>
-                            Delete
-                        </button>
+                        <div className="nav-right">
+                            <button className="btn-home" onClick={handleHome}>
+                                <span className="btn-text">Home</span>
+                                <span className="btn-icon">🏠</span>
+                            </button>
+                        </div>
                     </div>
-                </div>
-            </li>
-        ))}
-    </ul>
-</section>
+                </nav>
+
+                <h2>Projects</h2>
+                <ul className="data-list">
+                    {projects.map((p) => (
+                        <li key={p._id} className="data-row">
+                            <div className="project-info">
+                                <span className="project-name">Name: {p.name}</span>
+                                <span className="project-client">Client Email: {p.clientId?.email}</span>
+                                <div className="project-actions">
+                                    <select
+                                        className="status-select"
+                                        value={projectStatuses[p._id] || p.status}
+                                        onChange={(e) => handleInlineProjectChange(p._id, e.target.value)}
+                                    >
+                                        <option>To Do</option>
+                                        <option>In Progress</option>
+                                        <option>Completed</option>
+                                    </select>
+
+                                    <button
+                                        className="btn-primary"
+                                        onClick={() => handleUpdateProject(p._id)}
+                                    >
+                                        Save
+                                    </button>
+
+                                    <button
+                                        className="btn-danger"
+                                        onClick={() => handleDeleteProject(p._id)}
+                                    >
+                                        Delete
+                                    </button>
+                                </div>
+                            </div>
+                        </li>
+                    ))}
+                </ul>
+            </section>
+        </div>
+
     );
 };
 

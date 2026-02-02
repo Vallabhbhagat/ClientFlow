@@ -69,7 +69,7 @@ const ClientsPage = () => {
     };
 
     return (
-        <div className="clients-container">
+        <div id="clientpage" className="clients-container">
             <div className="clients-card">
                 {/* Header */}
                 <div className="clients-header">

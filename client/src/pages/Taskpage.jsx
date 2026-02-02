@@ -68,7 +68,7 @@ const Taskpage = () => {
                                 <span className="task-title">Title: {t.title}</span>
                                 <span className="task-project">Project Name: {t.projectId?.name}</span>
                                 <span className="task-assigned">Assigned to Member: {t.assignedTo?.name}</span>
-                                <span className="task-status">Status: {t.status}</span>
+                                <span className={`task-status status-${t.status.replace(" ", "-").toLowerCase()}`}>Status: {t.status}</span>
                             </div>
                         </li>
                     ))}

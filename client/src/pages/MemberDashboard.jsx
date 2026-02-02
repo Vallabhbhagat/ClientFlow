@@ -65,7 +65,7 @@ const MemberDashboard = () => {
     };
 
     return (
-        <div className="task-dashboard">
+        <div id="memberpage" className="task-dashboard">
             <nav className="task-nav">
                 <div className="nav-left">
                     <h3>ClientFlow</h3>

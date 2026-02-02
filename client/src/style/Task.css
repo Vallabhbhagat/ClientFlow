@@ -53,6 +53,7 @@
     align-items: center;
 }
 
+/* Home Button */
 .btn-home {
     background-color: transparent;
     color: #4a90e2;
@@ -65,7 +66,12 @@
     font-weight: 500;
     text-transform: uppercase;
     letter-spacing: 0.05em;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.4rem;
 }
+
 
 .btn-home:hover {
     background-color: #4a90e2;
@@ -127,47 +133,48 @@
     font-weight: 500;
 }
 
+.status-to-do {
+    background-color: #ffeaa7;
+    color: #d63031;
+    border-radius: 6px;
+}
+
+.status-in-progress {
+    background-color: #74b9ff;
+    color: #2d3436;
+    border-radius: 6px;
+}
+
+.status-completed {
+    background-color: #55efc4;
+    color: #00b894;
+    border-radius: 6px;
+}
+
 .task-title {
     font-weight: 600;
     color: #4a90e2;
 }
 
-/* Responsive Design */
+/* Tablet */
 @media (max-width: 768px) {
     .tasks-container {
         padding: 1rem;
+        align-items: flex-start;
     }
 
     .tasks-card {
-        padding: 2rem;
-        max-width: none;
+        padding: 1.5rem;
+        max-width: 100%;
     }
 
-    .task-item {
-        padding: 1rem;
-    }
-
-    .task-info {
-        gap: 0.25rem;
-    }
-}
-
-@media (max-width: 480px) {
     .clients-header {
         flex-direction: column;
-        gap: 1rem;
-        text-align: center;
+        align-items: flex-start;
     }
 
-    .tasks-card h2 {
-        font-size: 1.25rem;
-    }
-
-    .tasks-list {
-        gap: 0.75rem;
-    }
-
-    .task-item {
-        padding: 0.75rem;
+    .clients-header .nav-right {
+        width: 100%;
+        justify-content: flex-end;
     }
 }
