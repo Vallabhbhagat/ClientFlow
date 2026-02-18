@@ -39,7 +39,7 @@ const getMemberTask = async (req, res) => {
 
 const addTask = async (req, res) => {
     try {
-        const { taskTitle, taskProjectName, taskMemberName, taskStatus } = req.body;
+        const { taskTitle, taskProjectName, taskMemberName, taskStatus, estimatedHours, actualHours, dueDate } = req.body;
 
         const projectDetail = await project.findOne({ name: new RegExp(`^${taskProjectName.trim()}$`, 'i') });
         const member = await User.findOne({ name: taskMemberName.trim() });
@@ -53,7 +53,10 @@ const addTask = async (req, res) => {
             title: taskTitle,
             projectId: projectDetail._id,
             assignedTo: member._id,
-            taskStatus
+            status: taskStatus,
+            estimatedHours: estimatedHours || 0,
+            actualHours: actualHours || 0,
+            dueDate: dueDate ? new Date(dueDate) : null
         });
 
         await task.save();

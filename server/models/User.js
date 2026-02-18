@@ -21,6 +21,10 @@ const UserSchema = new mongoose.Schema({
     type: String,
     enum: ["admin", "teamMember"],
     default: "teamMember"
+  },
+  hourlyRate: {
+    type: Number,
+    default: 50
   }
 }, { timestamps: true });
 

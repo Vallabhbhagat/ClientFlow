@@ -11,11 +11,16 @@ const AdminDashboard = () => {
     const [projectName, setProjectName] = useState("");
     const [projectClientEmail, setProjectClientEmail] = useState("");
     const [projectStatus, setProjectStatus] = useState("To Do");
+    const [projectBudget, setProjectBudget] = useState("");
+    const [projectEstimatedHours, setProjectEstimatedHours] = useState("");
 
     const [taskTitle, setTaskTitle] = useState("");
     const [taskProjectName, setTaskProjectName] = useState("");
     const [taskMemberName, setTaskMemberName] = useState("");
     const [taskStatus, setTaskStatus] = useState("To Do");
+    const [taskEstimatedHours, setTaskEstimatedHours] = useState("");
+    const [taskActualHours, setTaskActualHours] = useState("");
+    const [taskDueDate, setTaskDueDate] = useState("");
 
 
     // ================= FETCH HELPER =================
@@ -62,6 +67,8 @@ const AdminDashboard = () => {
                 name: projectName,
                 clientEmail: projectClientEmail,
                 status: projectStatus,
+                budget: parseFloat(projectBudget) || 0,
+                estimatedHours: parseFloat(projectEstimatedHours) || 0
             }),
         });
 
@@ -69,6 +76,8 @@ const AdminDashboard = () => {
             setProjectName("");
             setProjectClientEmail("");
             setProjectStatus("To Do");
+            setProjectBudget("");
+            setProjectEstimatedHours("");
             alert("Project added succsessfully");
         }
     };
@@ -85,7 +94,10 @@ const AdminDashboard = () => {
                 taskTitle,
                 taskProjectName,
                 taskMemberName,
-                taskStatus
+                taskStatus,
+                estimatedHours: parseFloat(taskEstimatedHours) || 0,
+                actualHours: parseFloat(taskActualHours) || 0,
+                dueDate: taskDueDate || null
             }),
         });
 
@@ -94,6 +106,9 @@ const AdminDashboard = () => {
             setTaskProjectName("");
             setTaskMemberName("");
             setTaskStatus("To Do");
+            setTaskEstimatedHours("");
+            setTaskActualHours("");
+            setTaskDueDate("");
             alert("Task added succsessfully");
         } else {
             const errorData = await res.json();
@@ -120,6 +135,9 @@ const AdminDashboard = () => {
     const handleTask = () => {
         navigate("/tasks")
     }
+    const handleSmartFlow = () => {
+        navigate("/project-insights")
+    }
 
     // ================= UI =================
     return (
@@ -143,6 +161,9 @@ const AdminDashboard = () => {
                     </button>
                     <button className="btn-secondary" onClick={handleClient}>
                         All Clients
+                    </button>
+                    <button className="btn-secondary" onClick={handleSmartFlow}>
+                        Project Insights
                     </button>
                     <button className="btn-logout" onClick={handleLogout}>
                         Logout
@@ -195,6 +216,19 @@ const AdminDashboard = () => {
                             <option>In Progress</option>
                             <option>Completed</option>
                         </select>
+                        <input
+                            type="number"
+                            value={projectBudget}
+                            onChange={(e) => setProjectBudget(e.target.value)}
+                            placeholder="Budget ($)"
+                            required
+                        />
+                        <input
+                            type="number"
+                            value={projectEstimatedHours}
+                            onChange={(e) => setProjectEstimatedHours(e.target.value)}
+                            placeholder="Estimated Hours"
+                        />
                         <button className="btn-primary">Add Project</button>
                     </form>
                 </section>
@@ -229,6 +263,24 @@ const AdminDashboard = () => {
                             <option>In progress</option>
                             <option>Completed</option>
                         </select>
+                        <input
+                            type="number"
+                            value={taskEstimatedHours}
+                            onChange={(e) => setTaskEstimatedHours(e.target.value)}
+                            placeholder="Estimated Hours"
+                        />
+                        <input
+                            type="number"
+                            value={taskActualHours}
+                            onChange={(e) => setTaskActualHours(e.target.value)}
+                            placeholder="Actual Hours"
+                        />
+                        <input
+                            type="date"
+                            value={taskDueDate}
+                            onChange={(e) => setTaskDueDate(e.target.value)}
+                            placeholder="Due Date"
+                        />
                         <button className="btn-primary">Add Task</button>
                     </form>
                 </section>

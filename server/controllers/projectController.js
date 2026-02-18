@@ -15,7 +15,7 @@ const getProject = async (req, res) => {
 
 const addProject = async (req, res) => {
     try {
-        const { name, clientEmail, status } = req.body;
+        const { name, clientEmail, status, budget, estimatedHours } = req.body;
 
         if (!clientEmail || !name) {
             return res.status(400).json({ message: "Project name and clientEmail are required" });
@@ -34,7 +34,9 @@ const addProject = async (req, res) => {
         const project = new Project({
             clientId: client._id,
             name,
-            status
+            status,
+            budget: budget || 0,
+            estimatedHours: estimatedHours || 0
         });
 
         await project.save();

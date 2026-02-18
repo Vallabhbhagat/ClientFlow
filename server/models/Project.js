@@ -14,6 +14,19 @@ const projectSchema = new mongoose.Schema({
     type: String,
     enum: ["To Do", "In Progress", "Completed"],
     default: "To Do"
+  },
+  budget: {
+    type: Number,
+    required: true,
+    min: 0
+  },
+  estimatedHours: {
+    type: Number,
+    default: 0
+  },
+  actualHours: {
+    type: Number,
+    default: 0
   }
 }, { timestamps: true });
 

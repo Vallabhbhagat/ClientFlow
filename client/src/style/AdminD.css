@@ -145,13 +145,11 @@ body {
     flex: 1;
     padding: 2.5rem;
     display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    /* 3 equal-width columns for rectangles */
+    grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
     gap: 2.5rem;
     max-width: 1400px;
     margin: 0 auto;
     align-items: stretch;
-    /* Stretch to same height */
 }
 
 /* Cards - Equal Rectangle Size */
@@ -165,13 +163,7 @@ body {
     display: flex;
     flex-direction: column;
     justify-content: space-between;
-    /* Distribute content */
-    height: 450px;
-    /* Fixed height for equal rectangle size */
-    width: 100%;
-    /* Full width in grid */
-    aspect-ratio: 1 / 1.2;
-    /* Optional: Maintain rectangle proportion (width:height = 1:1.2) */
+    min-height: 450px;
 }
 
 #adminpage .card:hover {
