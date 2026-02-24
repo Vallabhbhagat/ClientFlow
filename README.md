@@ -41,6 +41,7 @@ This project was developed as part of a Full Stack Developer Internship to demon
 ---
 
 ## 📂 Project Structure
+
 ClientFlow/
 │
 ├── client/ # Frontend source code
@@ -65,9 +66,14 @@ cd ClientFlow
 
 cd server
 npm install
+node server.js
+
+cd ../client
+npm install
+npm run dev
 
 PORT=5000
 MONGO_URI=your_mongodb_connection_string
 JWT_SECRET=your_secret_key
 
-npm start
+
