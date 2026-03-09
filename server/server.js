@@ -19,7 +19,7 @@ const PORT = process.env.PORT || 3000;
 
 app.use(express.json());
 app.use(cors({
-    origin: ["http://localhost:5173", "http://localhost:5174"],
+    origin: "https://client-flow-nu.vercel.app/",
     credentials: true
 }));
 app.use(cookieparser());
