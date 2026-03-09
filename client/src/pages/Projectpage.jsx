@@ -1,30 +1,30 @@
-import React, { useState, useEffect } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import "../style/Project.css";
+import toast from "react-hot-toast";
+import Page from "../layout/Page";
+import GlassCard from "../components/ui/GlassCard";
+import AnimatedButton from "../components/ui/AnimatedButton";
+import LoadingSkeleton from "../components/ui/LoadingSkeleton";
+import EmptyStateIllustration from "../components/ui/EmptyStateIllustration";
+import { listProjects, updateProject, deleteProject } from "../services/projectService";
 
 const ProjectsPage = () => {
     const navigate = useNavigate();
 
     const [projects, setProjects] = useState([]);
     const [projectStatuses, setProjectStatuses] = useState({});
+    const [loading, setLoading] = useState(true);
 
-    const fetchWithAuth = async (url, options = {}) => {
-        const res = await fetch(url, {
-            credentials: "include",
-            headers: { "Content-Type": "application/json" },
-            ...options,
-        });
-
-        if (!res.ok) {
-            navigate("/");
-            return null;
-        }
-
-        return await res.json();
-    };
     const fetchProjects = async () => {
-        const data = await fetchWithAuth("http://localhost:5000/api/project");
-        if (data) setProjects(Array.isArray(data.data) ? data.data : []);
+        try {
+            setLoading(true);
+            const data = await listProjects();
+            setProjects(Array.isArray(data?.data) ? data.data : []);
+        } catch (e) {
+            toast.error(e.message || "Failed to load projects.");
+        } finally {
+            setLoading(false);
+        }
     };
     // ================= INITIAL LOAD =================
     useEffect(() => {
@@ -40,94 +40,88 @@ const ProjectsPage = () => {
         if (!newStatus) return;
 
         try {
-            const res = await fetch(`http://localhost:5000/api/project/${projectId}`, {
-                method: "PUT",
-                credentials: "include",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ status: newStatus }),
-            });
-            if (res.ok) {
-                fetchProjects();
-                setProjectStatuses((prev) => ({ ...prev, [projectId]: undefined }));
-            }
+            await updateProject(projectId, { status: newStatus });
+            toast.success("Project updated");
+            fetchProjects();
+            setProjectStatuses((prev) => ({ ...prev, [projectId]: undefined }));
         } catch (err) {
             console.error(err);
+            toast.error(err.message || "Update failed");
         }
     };
 
     const handleDeleteProject = async (projectId) => {
         try {
-            const res = await fetch(`http://localhost:5000/api/project/${projectId}`, {
-                method: "DELETE",
-                credentials: "include",
-                headers: { "Content-Type": "application/json" },
-            });
-            if (res.ok) fetchProjects();
+            await deleteProject(projectId);
+            toast.success("Project deleted");
+            fetchProjects();
         } catch (err) {
             console.error(err);
+            toast.error(err.message || "Delete failed");
         }
     };
 
-    const handleHome = () => {
-        navigate("/admin-dashboard");
-    }
-
     return (
-        <div id="projectpage">
-            <section className="card">
-                <nav>
-                    <div className="clients-header">
-                        <div className="nav-left">
-                            <h3>ClientFlow</h3>
-                        </div>
-
-                        <div className="nav-right">
-                            <button className="btn-home" onClick={handleHome}>
-                                <span className="btn-text">Home</span>
-                                <span className="btn-icon">🏠</span>
-                            </button>
-                        </div>
+        <Page>
+                <div className="page-head">
+                    <div>
+                        <div className="page-kicker">Work</div>
+                        <h1 className="page-title">Projects</h1>
+                        <div className="page-sub">Track delivery status and keep budgets healthy.</div>
                     </div>
-                </nav>
+                </div>
 
-                <h2>Projects</h2>
-                <ul className="data-list">
-                    {projects.map((p) => (
-                        <li key={p._id} className="data-row">
-                            <div className="project-info">
-                                <span className="project-name">Name: {p.name}</span>
-                                <span className="project-client">Client Email: {p.clientId?.email}</span>
-                                <div className="project-actions">
-                                    <select
-                                        className="status-select"
-                                        value={projectStatuses[p._id] || p.status}
-                                        onChange={(e) => handleInlineProjectChange(p._id, e.target.value)}
-                                    >
-                                        <option>To Do</option>
-                                        <option>In Progress</option>
-                                        <option>Completed</option>
-                                    </select>
-
-                                    <button
-                                        className="btn-primary"
-                                        onClick={() => handleUpdateProject(p._id)}
-                                    >
-                                        Save
-                                    </button>
-
-                                    <button
-                                        className="btn-danger"
-                                        onClick={() => handleDeleteProject(p._id)}
-                                    >
-                                        Delete
-                                    </button>
-                                </div>
+                <GlassCard className="table-card">
+                    {loading ? (
+                        <LoadingSkeleton lines={7} />
+                    ) : projects.length === 0 ? (
+                        <EmptyStateIllustration
+                            title="No projects yet"
+                            subtitle="Create one from the Dashboard to get started."
+                        />
+                    ) : (
+                        <div className="table">
+                            <div className="table-head">
+                                <div>Project</div>
+                                <div>Client</div>
+                                <div style={{ textAlign: "right" }}>Status</div>
                             </div>
-                        </li>
-                    ))}
-                </ul>
-            </section>
-        </div>
+
+                            {projects.map((p) => (
+                                <div key={p._id} className="table-row">
+                                    <div className="strong">{p.name}</div>
+                                    <div className="muted">{p.clientId?.email || "—"}</div>
+                                    <div style={{ textAlign: "right", display: "flex", justifyContent: "flex-end", gap: 8 }}>
+                                        <select
+                                            className="select"
+                                            value={projectStatuses[p._id] || p.status}
+                                            onChange={(e) => handleInlineProjectChange(p._id, e.target.value)}
+                                        >
+                                            <option>To Do</option>
+                                            <option>In Progress</option>
+                                            <option>Completed</option>
+                                        </select>
+                                        <AnimatedButton
+                                            variant="ghost"
+                                            size="sm"
+                                            onClick={() => handleUpdateProject(p._id)}
+                                        >
+                                            Save
+                                        </AnimatedButton>
+                                        <AnimatedButton
+                                            variant="danger"
+                                            size="sm"
+                                            onClick={() => handleDeleteProject(p._id)}
+                                        >
+                                            Delete
+                                        </AnimatedButton>
+                                    </div>
+                                </div>
+                            ))}
+                        </div>
+                    )}
+                </GlassCard>
+            </Page>
 
     );
 };

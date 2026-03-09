@@ -1,27 +1,18 @@
-import React, { useState, useEffect } from 'react'
-import { useNavigate } from 'react-router-dom'
-import "../style/Task.css"
+import React, { useEffect, useMemo, useState } from "react";
+import { useNavigate } from "react-router-dom";
+import toast from "react-hot-toast";
+import Page from "../layout/Page";
+import GlassCard from "../components/ui/GlassCard";
+import LoadingSkeleton from "../components/ui/LoadingSkeleton";
+import EmptyStateIllustration from "../components/ui/EmptyStateIllustration";
+import { listTasks } from "../services/taskService";
 
 const Taskpage = () => {
     const navigate = useNavigate();
 
     const [tasks, setTasks] = useState([]);
-    const [taskStatuses, setTaskStatuses] = useState({});
-
-    const fetchWithAuth = async (url, options = {}) => {
-        const res = await fetch(url, {
-            credentials: "include",
-            headers: { "Content-Type": "application/json" },
-            ...options,
-        });
-
-        if (!res.ok) {
-            navigate("/");
-            return null;
-        }
-
-        return await res.json();
-    };
+    // no inline updates on admin task board (view-only)
+    const [loading, setLoading] = useState(true);
 
     // ================= INITIAL LOAD =================
     useEffect(() => {
@@ -30,51 +21,109 @@ const Taskpage = () => {
 
 
     const fetchTasks = async () => {
-        const data = await fetchWithAuth("http://localhost:5000/api/task");
-        if (data) setTasks(Array.isArray(data.data) ? data.data : []);
+        try {
+            setLoading(true);
+            const data = await listTasks();
+            setTasks(Array.isArray(data?.data) ? data.data : []);
+        } catch (e) {
+            toast.error(e.message || "Failed to load tasks.");
+        } finally {
+            setLoading(false);
+        }
     };
 
-    // ================= UPDATE TASK =================
-    const handleInlineTaskChange = (taskId, newStatus) => {
-        setTaskStatuses((prev) => ({ ...prev, [taskId]: newStatus }));
+    const normalize = (s) => (s || "").toLowerCase().replace(/\s+/g, " ").trim();
+    const statusKey = (s) => {
+        const n = normalize(s);
+        if (n === "in progress") return "inprogress";
+        if (n === "completed") return "done";
+        return "todo";
     };
 
-
-    const handleHome = () => {
-        navigate("/admin-dashboard");
-    }
-
+    const columns = useMemo(() => {
+        const by = { todo: [], inprogress: [], done: [] };
+        for (const t of tasks) by[statusKey(t.status)].push(t);
+        return by;
+    }, [tasks]);
 
     return (
-        <div className="tasks-container">
-            {/* TASKS */}
-            <section className="tasks-card">
-                <div className="clients-header">
-                    <div className="nav-left">
-                        <h3>ClientFlow</h3>
-                    </div>
-
-                    <div className="nav-right">
-                        <button className="btn-home" onClick={handleHome}>
-                            Home
-                        </button>
+        <Page>
+                <div className="page-head">
+                    <div>
+                        <div className="page-kicker">Execution</div>
+                        <h1 className="page-title">Tasks</h1>
+                        <div className="page-sub">A kanban view of work across projects.</div>
                     </div>
                 </div>
-                <h2>Tasks</h2>
-                <ul className="tasks-list">
-                    {tasks.map((t) => (
-                        <li key={t._id} className="task-item">
-                            <div className="task-info">
-                                <span className="task-title">Title: {t.title}</span>
-                                <span className="task-project">Project Name: {t.projectId?.name}</span>
-                                <span className="task-assigned">Assigned to Member: {t.assignedTo?.name}</span>
-                                <span className={`task-status status-${t.status.replace(" ", "-").toLowerCase()}`}>Status: {t.status}</span>
-                            </div>
-                        </li>
-                    ))}
-                </ul>
-            </section>
-        </div>
+
+                <div className="kanban">
+                    {loading ? (
+                        <GlassCard className="table-card">
+                            <LoadingSkeleton lines={8} />
+                        </GlassCard>
+                    ) : tasks.length === 0 ? (
+                        <GlassCard className="table-card">
+                            <EmptyStateIllustration
+                                title="No tasks yet"
+                                subtitle="Create tasks from the Dashboard and assign them to team members."
+                            />
+                        </GlassCard>
+                    ) : (
+                        <>
+                            <GlassCard className="kanban-col">
+                                <div className="kanban-head">
+                                    <div className="kanban-title">To Do</div>
+                                    <div className="kanban-count">{columns.todo.length}</div>
+                                </div>
+                                <div className="kanban-list">
+                                    {columns.todo.map((t) => (
+                                        <div key={t._id} className="kanban-card">
+                                            <div className="strong">{t.title}</div>
+                                            <div className="muted" style={{ marginTop: 6 }}>
+                                                {t.projectId?.name || "—"} · {t.assignedTo?.name || "Unassigned"}
+                                            </div>
+                                        </div>
+                                    ))}
+                                </div>
+                            </GlassCard>
+
+                            <GlassCard className="kanban-col">
+                                <div className="kanban-head">
+                                    <div className="kanban-title">In Progress</div>
+                                    <div className="kanban-count">{columns.inprogress.length}</div>
+                                </div>
+                                <div className="kanban-list">
+                                    {columns.inprogress.map((t) => (
+                                        <div key={t._id} className="kanban-card">
+                                            <div className="strong">{t.title}</div>
+                                            <div className="muted" style={{ marginTop: 6 }}>
+                                                {t.projectId?.name || "—"} · {t.assignedTo?.name || "Unassigned"}
+                                            </div>
+                                        </div>
+                                    ))}
+                                </div>
+                            </GlassCard>
+
+                            <GlassCard className="kanban-col">
+                                <div className="kanban-head">
+                                    <div className="kanban-title">Completed</div>
+                                    <div className="kanban-count">{columns.done.length}</div>
+                                </div>
+                                <div className="kanban-list">
+                                    {columns.done.map((t) => (
+                                        <div key={t._id} className="kanban-card">
+                                            <div className="strong">{t.title}</div>
+                                            <div className="muted" style={{ marginTop: 6 }}>
+                                                {t.projectId?.name || "—"} · {t.assignedTo?.name || "Unassigned"}
+                                            </div>
+                                        </div>
+                                    ))}
+                                </div>
+                            </GlassCard>
+                        </>
+                    )}
+                </div>
+            </Page>
 
     )
 }

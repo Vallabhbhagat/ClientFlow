@@ -1,32 +1,25 @@
-import React, { useState } from 'react'
-import { Link, useNavigate } from "react-router-dom"
-import "../style/Login.css"
+import React, { useState } from "react";
+import { Link, useNavigate } from "react-router-dom";
+import toast from "react-hot-toast";
+import { login as loginApi } from "../services/authService";
+import GlassCard from "../components/ui/GlassCard";
+import AnimatedButton from "../components/ui/AnimatedButton";
+import ThreeBackground from "../components/three/ThreeBackground";
 
 const Login = () => {
     const navigate = useNavigate();
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [user, setUser] = useState(null);
+    const [loading, setLoading] = useState(false);
 
     const handleLogin = async (e) => {
         e.preventDefault();
         try {
-            const res = await fetch("http://localhost:5000/api/auth/login", {
-                method: "POST",
-                credentials: "include", // ✅ important for cookies
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ email, password })
-            });
-
-            if (!res.ok) {
-                const errorData = await res.json();
-                throw new Error(errorData.message || 'Login failed');
-            }
-
-            const data = await res.json();
+            setLoading(true);
+            const data = await loginApi({ email, password });
             setUser(data.user);
-
-            alert("Successful Login!");
+            toast.success("Welcome back!");
 
             // Redirect based on role
             if (data.user.role === "admin") {
@@ -39,44 +32,70 @@ const Login = () => {
             setPassword("");
         } catch (error) {
             console.error(error);
-            alert(error.message);
+            toast.error(error.message || "Login failed");
+        } finally {
+            setLoading(false);
         }
     }
 
     return (
-        <div className="auth-container">
-            <div className="auth-card">
-                <h2>Login</h2>
-
-                <form onSubmit={handleLogin}>
-                    <div className="form-group">
-                        <label>Email</label>
-                        <input
-                            value={email.toLowerCase().trim()}
-                            onChange={e => setEmail(e.target.value)}
-                            type="email"
-                            placeholder="you@example.com"
-                        />
+        <div className="auth-shell">
+            <ThreeBackground />
+            <div className="auth-center">
+                <GlassCard className="auth-card2">
+                    <div className="auth-head">
+                        <div className="auth-badge">Secure access</div>
+                        <h2 className="auth-title">Sign in</h2>
+                        <p className="auth-subtitle">Your workspace, beautifully organized.</p>
                     </div>
 
-                    <div className="form-group">
-                        <label>Password</label>
-                        <input
-                            value={password}
-                            onChange={e => setPassword(e.target.value)}
-                            type="password"
-                            placeholder="********"
-                        />
-                    </div>
+                    <form onSubmit={handleLogin} className="auth-form">
+                        <div className="field">
+                            <div className="label">Email</div>
+                            <input
+                                className="input"
+                                value={email.toLowerCase().trim()}
+                                onChange={(e) => setEmail(e.target.value)}
+                                type="email"
+                                placeholder="you@example.com"
+                                autoComplete="email"
+                                required
+                            />
+                        </div>
 
-                    <button type="submit" className="btn-primary">
-                        Login
-                    </button>
+                        <div className="field">
+                            <div className="label">Password</div>
+                            <input
+                                className="input"
+                                value={password}
+                                onChange={(e) => setPassword(e.target.value)}
+                                type="password"
+                                placeholder="********"
+                                autoComplete="current-password"
+                                required
+                            />
+                        </div>
 
-                    <small className="auth-footer">
-                        Don't have an account? <Link to="/register">Register</Link>
-                    </small>
-                </form>
+                        <AnimatedButton
+                            type="submit"
+                            variant="primary"
+                            size="md"
+                            disabled={loading}
+                            className="auth-submit"
+                        >
+                            {loading ? "Signing in..." : "Login"}
+                        </AnimatedButton>
+
+                        <div className="auth-foot">
+                            <span className="muted">
+                                Don&apos;t have an account?
+                            </span>{" "}
+                            <Link className="link" to="/register">
+                                Register
+                            </Link>
+                        </div>
+                    </form>
+                </GlassCard>
             </div>
         </div>
 

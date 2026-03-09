@@ -1,36 +1,33 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import "../style/ProjectInsights.css";
-import { jsPDF } from 'jspdf';
+import toast from "react-hot-toast";
+import { jsPDF } from "jspdf";
+import Page from "../layout/Page";
+import GlassCard from "../components/ui/GlassCard";
+import AnimatedButton from "../components/ui/AnimatedButton";
+import LoadingSkeleton from "../components/ui/LoadingSkeleton";
+import EmptyStateIllustration from "../components/ui/EmptyStateIllustration";
+import AnalyticsChart from "../components/charts/AnalyticsChart";
+import { getAllProjectInsights, getProjectInsights } from "../services/insightsService";
 
 const ProjectInsights = () => {
     const navigate = useNavigate();
     const [analyses, setAnalyses] = useState([]);
     const [selectedProject, setSelectedProject] = useState(null);
-
-    const fetchWithAuth = async (url, options = {}) => {
-        const res = await fetch(url, {
-            credentials: "include",
-            headers: { "Content-Type": "application/json" },
-            ...options,
-        });
-
-        if (!res.ok) {
-            navigate("/");
-            return null;
-        }
-
-        return await res.json();
-    };
+    const [loading, setLoading] = useState(true);
+    const [detailLoading, setDetailLoading] = useState(false);
 
     useEffect(() => {
         const fetchAnalyses = async () => {
             try {
-                const data = await fetchWithAuth("http://localhost:5000/api/project-insights/all");
-                if (data) setAnalyses(data);
+                setLoading(true);
+                const data = await getAllProjectInsights();
+                setAnalyses(Array.isArray(data) ? data : []);
             } catch (error) {
                 console.error("Error fetching analyses:", error);
-                alert("Failed to load project analyses. Please check your connection.");
+                toast.error(error.message || "Failed to load insights");
+            } finally {
+                setLoading(false);
             }
         };
         fetchAnalyses();
@@ -38,16 +35,15 @@ const ProjectInsights = () => {
 
     const handleAnalyzeProject = async (projectId) => {
         try {
-            const data = await fetchWithAuth(`http://localhost:5000/api/project-insights/project/${projectId}`);
+            setDetailLoading(true);
+            const data = await getProjectInsights(projectId);
             if (data) setSelectedProject(data);
         } catch (error) {
             console.error("Error fetching project analysis:", error);
-            alert("Failed to load project analysis. Please try again.");
+            toast.error(error.message || "Failed to load project analysis");
+        } finally {
+            setDetailLoading(false);
         }
-    };
-
-    const handleBack = () => {
-        navigate("/admin-dashboard");
     };
 
     const downloadPDF = () => {
@@ -96,56 +92,143 @@ const ProjectInsights = () => {
         doc.save(`${selectedProject.projectName}-insights.pdf`);
     };
 
+    const chartModel = useMemo(() => {
+        if (!selectedProject) return null;
+        const labels = ["Revenue", "Cost", "Profit"];
+        return {
+            labels,
+            series: [
+                {
+                    label: selectedProject.projectName,
+                    color: "#22D3EE",
+                    data: [
+                        Number(selectedProject.revenue || 0),
+                        Number(selectedProject.cost || 0),
+                        Number(selectedProject.profit || 0),
+                    ],
+                },
+            ],
+        };
+    }, [selectedProject]);
+
     return (
-        <div className="projectinsights-page">
-            <nav className="projectinsights-nav">
-                <div className="nav-left">
-                    <h3>Project Insights</h3>
-                </div>
-                <div className="nav-right">
-                    <button className="btn-secondary" onClick={handleBack}>
-                        Back to Dashboard
-                    </button>
-                </div>
-            </nav>
-            <div className="projectinsights-container">
-                <h1>Project Insights - Financial Analysis</h1>
-                <div className="analyses-list">
-                    {analyses.map((analysis, index) => (
-                        <div key={index} className="analysis-card" onClick={() => handleAnalyzeProject(analysis.projectId)}>
-                            <h3>{analysis.projectName}</h3>
-                            <p>Status: {analysis.status}</p>
-                            <p>Risk: {analysis.riskLevel}</p>
-                            <p>Health Score: {analysis.healthScore}</p>
-                        </div>
-                    ))}
-                </div>
-                {selectedProject && (
-                    <div className="detailed-analysis">
-                        <div className="analysis-header">
-                            <h2>Project Summary: {selectedProject.projectName}</h2>
-                            <button className="btn-download" onClick={downloadPDF}>
-                                Download PDF
-                            </button>
-                        </div>
-                        <p>Revenue: ${selectedProject.revenue}</p>
-                        <p>Cost: ${selectedProject.cost.toFixed(2)}</p>
-                        <p>Profit: ${selectedProject.profit.toFixed(2)}</p>
-                        <p>Margin: {selectedProject.margin}</p>
-                        <p>Status: {selectedProject.status}</p>
-                        <p>Risk Level: {selectedProject.riskLevel}</p>
-                        <h3>Key Issues:</h3>
-                        <ul>
-                            {selectedProject.keyIssues.map((issue, i) => <li key={i}>{issue}</li>)}
-                        </ul>
-                        <h3>Recommendations:</h3>
-                        <ol>
-                            {selectedProject.recommendations.map((rec, i) => <li key={i}>{rec}</li>)}
-                        </ol>
+        <Page>
+                <div className="page-head">
+                    <div>
+                        <div className="page-kicker">Analytics</div>
+                        <h1 className="page-title">Project Insights</h1>
+                        <div className="page-sub">Financial health, delivery risk, and key actions.</div>
                     </div>
-                )}
-            </div>
-        </div>
+                    {selectedProject ? (
+                        <AnimatedButton variant="primary" size="sm" onClick={downloadPDF}>
+                            Download PDF
+                        </AnimatedButton>
+                    ) : null}
+                </div>
+
+                <div className="grid grid-2">
+                    <GlassCard className="table-card">
+                        <div className="strong" style={{ padding: "10px 10px 14px" }}>
+                            Projects
+                        </div>
+                        {loading ? (
+                            <LoadingSkeleton lines={8} />
+                        ) : analyses.length === 0 ? (
+                            <EmptyStateIllustration
+                                title="No analyses yet"
+                                subtitle="Create projects and tasks to generate insight signals."
+                            />
+                        ) : (
+                            <div className="insights-list">
+                                {analyses.map((a) => (
+                                    <button
+                                        key={a.projectId}
+                                        className="insight-item"
+                                        onClick={() => handleAnalyzeProject(a.projectId)}
+                                    >
+                                        <div className="strong">{a.projectName}</div>
+                                        <div className="muted" style={{ marginTop: 6 }}>
+                                            Status: {a.status} · Risk: {a.riskLevel} · Health: {a.healthScore}
+                                        </div>
+                                    </button>
+                                ))}
+                            </div>
+                        )}
+                    </GlassCard>
+
+                    <GlassCard className="table-card">
+                        <div className="strong" style={{ padding: "10px 10px 14px" }}>
+                            Details
+                        </div>
+                        {detailLoading ? (
+                            <LoadingSkeleton lines={10} />
+                        ) : !selectedProject ? (
+                            <EmptyStateIllustration
+                                title="Select a project"
+                                subtitle="Pick a project on the left to view breakdown and recommendations."
+                            />
+                        ) : (
+                            <div className="insights-detail">
+                                <div className="insight-hero">
+                                    <div>
+                                        <div className="page-kicker">Summary</div>
+                                        <div className="strong" style={{ fontSize: 20, marginTop: 8 }}>
+                                            {selectedProject.projectName}
+                                        </div>
+                                        <div className="muted" style={{ marginTop: 8 }}>
+                                            Status: {selectedProject.status} · Risk: {selectedProject.riskLevel} · Margin: {selectedProject.margin}
+                                        </div>
+                                    </div>
+                                </div>
+
+                                {chartModel ? (
+                                    <div style={{ marginTop: 14 }}>
+                                        <AnalyticsChart labels={chartModel.labels} series={chartModel.series} />
+                                    </div>
+                                ) : null}
+
+                                <div className="grid grid-3" style={{ marginTop: 14 }}>
+                                    <GlassCard className="stat-card">
+                                        <div className="stat-label">Revenue</div>
+                                        <div className="stat-value">${selectedProject.revenue}</div>
+                                    </GlassCard>
+                                    <GlassCard className="stat-card">
+                                        <div className="stat-label">Cost</div>
+                                        <div className="stat-value">${Number(selectedProject.cost || 0).toFixed(2)}</div>
+                                    </GlassCard>
+                                    <GlassCard className="stat-card">
+                                        <div className="stat-label">Profit</div>
+                                        <div className="stat-value">${Number(selectedProject.profit || 0).toFixed(2)}</div>
+                                    </GlassCard>
+                                </div>
+
+                                <div className="grid grid-2" style={{ marginTop: 14 }}>
+                                    <GlassCard className="table-card">
+                                        <div className="strong" style={{ padding: "10px 10px 14px" }}>
+                                            Key issues
+                                        </div>
+                                        <ul className="list">
+                                            {selectedProject.keyIssues.map((issue, i) => (
+                                                <li key={i}>{issue}</li>
+                                            ))}
+                                        </ul>
+                                    </GlassCard>
+                                    <GlassCard className="table-card">
+                                        <div className="strong" style={{ padding: "10px 10px 14px" }}>
+                                            Recommendations
+                                        </div>
+                                        <ol className="list">
+                                            {selectedProject.recommendations.map((rec, i) => (
+                                                <li key={i}>{rec}</li>
+                                            ))}
+                                        </ol>
+                                    </GlassCard>
+                                </div>
+                            </div>
+                        )}
+                    </GlassCard>
+                </div>
+            </Page>
     );
 };
 
